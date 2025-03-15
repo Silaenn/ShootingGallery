@@ -94,9 +94,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3300446532173140778}
   - component: {fileID: 1579062396558759067}
+  - component: {fileID: 5882761236449672928}
   - component: {fileID: 4778975171939031746}
   m_Layer: 0
-  m_Name: duck
+  m_Name: duckRightTengah
   m_TagString: Target
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,6 +171,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5882761236449672928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7692765136743762092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f85da38915db784dbe691bfb1965614, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 3
+  amplitude: 0.5
+  frequency: 1
+  destroyDistance: 18
+  startFacingRight: 1
 --- !u!61 &4778975171939031746
 BoxCollider2D:
   m_ObjectHideFlags: 0

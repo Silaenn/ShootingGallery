@@ -5,7 +5,7 @@ public class GunShoot : MonoBehaviour
     public GameObject bulletHolePrefab;
     Camera mainCamera;
 
-    float timeDestroy = 10f;
+    float timeDestroy = 1f;
 
     void Start()
     {
@@ -30,10 +30,11 @@ public class GunShoot : MonoBehaviour
         if (hit.collider != null)
         {
             Debug.Log("Kena: " + hit.collider.gameObject.name);
-            GameObject bulletHole = Instantiate(bulletHolePrefab, hit.point, Quaternion.identity);
 
             if (hit.collider.CompareTag("Target"))
             {
+                GameObject bulletHole = Instantiate(bulletHolePrefab, hit.point, Quaternion.identity);
+                bulletHole.transform.SetParent(hit.collider.transform);
                 Destroy(hit.collider.gameObject, timeDestroy);
                 Destroy(bulletHole, timeDestroy);
             }
