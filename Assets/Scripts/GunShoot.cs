@@ -5,6 +5,7 @@ using UnityEngine;
 public class GunShoot : MonoBehaviour
 {
     public Sprite newSprite;
+    public AmmoManager ammoManager;
     Camera mainCamera;
 
     float timeDestroy = 3f;
@@ -24,6 +25,11 @@ public class GunShoot : MonoBehaviour
 
     void Shoot()
     {
+        if (!ammoManager.UseAmmo())
+        {
+            return;
+        }
+
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
 
