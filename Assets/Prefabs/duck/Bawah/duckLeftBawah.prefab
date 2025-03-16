@@ -9,12 +9,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 358194873383279812, guid: 03493fc7f2fa8504aaab963550c15891, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: b0244cf3dd9c1e7498a77473bce9e9bd, type: 3}
+    - target: {fileID: 358194873383279812, guid: 03493fc7f2fa8504aaab963550c15891, type: 3}
       propertyPath: m_SortingOrder
-      value: 4
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 637732947680873418, guid: 03493fc7f2fa8504aaab963550c15891, type: 3}
       propertyPath: m_SortingOrder
-      value: 21
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 977338840786650355, guid: 03493fc7f2fa8504aaab963550c15891, type: 3}
       propertyPath: m_LocalScale.y

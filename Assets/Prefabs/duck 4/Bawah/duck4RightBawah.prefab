@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: duck4RightBawah
       objectReference: {fileID: 0}
+    - target: {fileID: 5347239497812712273, guid: 918c30ba82659ea4996be25039f0b29a, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 9092896651687906286, guid: 918c30ba82659ea4996be25039f0b29a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

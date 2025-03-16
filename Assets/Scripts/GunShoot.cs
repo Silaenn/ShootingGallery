@@ -1,11 +1,13 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class GunShoot : MonoBehaviour
 {
-    public GameObject bulletHolePrefab;
+    public Sprite newSprite;
     Camera mainCamera;
 
-    float timeDestroy = 1f;
+    float timeDestroy = 3f;
 
     void Start()
     {
@@ -22,21 +24,44 @@ public class GunShoot : MonoBehaviour
 
     void Shoot()
     {
-        Debug.Log("Masuk");
-
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
 
         if (hit.collider != null)
         {
-            Debug.Log("Kena: " + hit.collider.gameObject.name);
-
             if (hit.collider.CompareTag("Target"))
             {
-                GameObject bulletHole = Instantiate(bulletHolePrefab, hit.point, Quaternion.identity);
-                bulletHole.transform.SetParent(hit.collider.transform);
+                SpriteRenderer targetSpriteRenderer = hit.collider.GetComponent<SpriteRenderer>();
+
+                Transform targetTransform = hit.collider.transform;
+                Rigidbody2D targetRb = hit.collider.GetComponent<Rigidbody2D>();
+
+                if (targetRb == null)
+                {
+                    targetRb = hit.collider.gameObject.AddComponent<Rigidbody2D>();
+                }
+
+                Collider2D targetCollider = hit.collider.GetComponent<Collider2D>();
+                if (targetCollider != null)
+                {
+                    targetCollider.enabled = false;
+                }
+
+                if (targetSpriteRenderer != null)
+                {
+                    targetSpriteRenderer.sprite = newSprite;
+                }
+
+                float lerpDuration = 0.5f;
+                Quaternion startRotation = targetTransform.rotation;
+                float targetRotationAngle = targetTransform.localScale.x > 0 ? 180f : -180f;
+                Quaternion targetRotation = Quaternion.Euler(0, targetRotationAngle, 0);
+
+                StartCoroutine(RotateAndEnableGravity(targetTransform, targetRb, startRotation, targetRotation, lerpDuration));
+
+                targetTransform.GetComponent<MovingTarget>().enabled = false;
+
                 Destroy(hit.collider.gameObject, timeDestroy);
-                Destroy(bulletHole, timeDestroy);
             }
         }
         else
@@ -45,4 +70,24 @@ public class GunShoot : MonoBehaviour
         }
     }
 
+    IEnumerator RotateAndEnableGravity(Transform targetTransform, Rigidbody2D rb, Quaternion startRotation, Quaternion targetRotation, float lerpDuration)
+    {
+        float timer = 0f;
+
+        rb.gravityScale = 0f;
+
+        while (timer < lerpDuration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / lerpDuration;
+            targetTransform.rotation = Quaternion.Lerp(startRotation, targetRotation, t);
+            yield return null;
+        }
+
+        targetTransform.rotation = targetRotation;
+
+        rb.gravityScale = 1f;
+
+        rb.velocity = new Vector2(0, -3f);
+    }
 }

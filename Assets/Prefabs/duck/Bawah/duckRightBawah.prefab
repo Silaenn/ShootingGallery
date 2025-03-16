@@ -48,6 +48,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2504018891647783247, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2504018891647783247, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2504018891647783247, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 640583225
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378035072110954049, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378035072110954049, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378035072110954049, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5893792169766738550, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
       propertyPath: m_Name
       value: duckRightBawah
