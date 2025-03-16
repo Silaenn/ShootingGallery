@@ -64,9 +64,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5882761236449672928, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
+      propertyPath: frequency
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 7692765136743762092, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
       propertyPath: m_Name
-      value: duck1
+      value: duck1RightBawah
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

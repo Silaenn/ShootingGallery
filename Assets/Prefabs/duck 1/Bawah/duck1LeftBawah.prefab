@@ -13,6 +13,10 @@ PrefabInstance:
       value: duck1LeftBawah
       objectReference: {fileID: 0}
     - target: {fileID: 3756957187469904161, guid: 372726245f986d847a734d290ea2037b, type: 3}
+      propertyPath: frequency
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3756957187469904161, guid: 372726245f986d847a734d290ea2037b, type: 3}
       propertyPath: startFacingRight
       value: 0
       objectReference: {fileID: 0}

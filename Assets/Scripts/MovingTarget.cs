@@ -5,9 +5,9 @@ using UnityEngine;
 public class MovingTarget : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 3f;
-    public float amplitude = 0.5f;
-    public float frequency = 1f;
+    float moveSpeed = 2f;
+    float amplitude = 0.6f;
+    float frequency = 2f;
     public float destroyDistance = 18f;
     public bool startFacingRight = true;
 
@@ -31,7 +31,8 @@ public class MovingTarget : MonoBehaviour
 
     void WaveMovement()
     {
-        float verticalOffset = Mathf.Sin(Time.time * frequency) * amplitude;
+        float sinWave = Mathf.Sin(Time.time * frequency);
+        float verticalOffset = Mathf.Abs(sinWave) * amplitude;
         transform.position = new Vector2(
             transform.position.x,
             startPosition.y + verticalOffset

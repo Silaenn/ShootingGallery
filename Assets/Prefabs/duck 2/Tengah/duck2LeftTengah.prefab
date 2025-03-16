@@ -53,12 +53,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5882761236449672928, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
+      propertyPath: frequency
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882761236449672928, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
       propertyPath: startFacingRight
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7692765136743762092, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
       propertyPath: m_Name
-      value: duck2Left
+      value: duck2LeftTengah
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

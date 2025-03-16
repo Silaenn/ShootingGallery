@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: duck2LeftBawah
       objectReference: {fileID: 0}
+    - target: {fileID: 4011727820740030175, guid: 56a302863a8a76d4c9bfba11f0f38b84, type: 3}
+      propertyPath: frequency
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 5459149714720965397, guid: 56a302863a8a76d4c9bfba11f0f38b84, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

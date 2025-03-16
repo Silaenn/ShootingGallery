@@ -1,15 +1,17 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class TargetSpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
-    public GameObject[] targetPrefabs;
+    public GameObject[] bawahPrefabs;
+    public GameObject[] tengahPrefabs;
     public float spawnInterval = 3f;
     public int batchSIze = 3;
 
     public Vector2 spawnRangeX = new Vector2(-6.84f, 6.84f);
-    public float[] spawnPositionsY = new float[] { -1.362507f, -0.0f };
+    float[] spawnPositionsY = new float[] { -0.29f, -1.87f };
 
 
     void Start()
@@ -23,13 +25,7 @@ public class TargetSpawner : MonoBehaviour
         {
             for (int i = 0; i < batchSIze; i++)
             {
-                int randomIndex = Random.Range(0, targetPrefabs.Length);
-                GameObject randomPrefab = targetPrefabs[randomIndex];
-
-                if (randomPrefab != null)
-                {
-                    Instantiate(randomPrefab, GetRandomPosition(), Quaternion.identity);
-                }
+                SpawnTarget();
             }
 
 
@@ -37,11 +33,16 @@ public class TargetSpawner : MonoBehaviour
         }
     }
 
-    Vector3 GetRandomPosition()
+    private void SpawnTarget()
     {
-        float randomX = UnityEngine.Random.Range(spawnRangeX.x, spawnRangeX.y);
+        float selectedY = spawnPositionsY[UnityEngine.Random.Range(0, spawnPositionsY.Length)];
+        GameObject[] selectedPrefabs = (selectedY == -0.29f) ? tengahPrefabs : bawahPrefabs;
 
-        float randomY = spawnPositionsY[UnityEngine.Random.Range(0, spawnPositionsY.Length)];
-        return new Vector3(randomX, randomY, 0);
+        if (selectedPrefabs.Length > 0)
+        {
+            GameObject randomPrefab = selectedPrefabs[UnityEngine.Random.Range(0, selectedPrefabs.Length)];
+            Vector3 spawnPosition = new Vector3(UnityEngine.Random.Range(spawnRangeX.x, spawnRangeX.y), selectedY, 0);
+            Instantiate(randomPrefab, spawnPosition, Quaternion.identity);
+        }
     }
 }
