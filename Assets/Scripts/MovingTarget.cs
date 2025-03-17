@@ -5,7 +5,7 @@ using UnityEngine;
 public class MovingTarget : MonoBehaviour
 {
     [Header("Movement Settings")]
-    float moveSpeed = 2f;
+    public float moveSpeed = 2f;
     float amplitude = 0.6f;
     float frequency = 2f;
     public float destroyDistance = 18f;

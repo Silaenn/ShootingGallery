@@ -28,9 +28,7 @@ public class AmmoManager : MonoBehaviour
     {
         if (currentAmmo > 0)
         {
-            Debug.Log("Using ammo... Current Ammo Before: " + currentAmmo);
             currentAmmo--;
-            Debug.Log("Current Ammo After: " + currentAmmo);
 
             if (currentAmmo < ammoIcons.Count)
             {
@@ -52,18 +50,14 @@ public class AmmoManager : MonoBehaviour
     {
         if (currentAmmo < initialAmmo)
         {
-            Debug.Log("Reloading... Current Ammo Before: " + currentAmmo + ", Initial Ammo: " + initialAmmo);
             currentAmmo = initialAmmo;
-            Debug.Log("Current Ammo After Assignment: " + currentAmmo);
 
             for (int i = 0; i < ammoIcons.Count; i++)
             {
                 ammoIcons[i].gameObject.SetActive(i < currentAmmo);
             }
 
-            Debug.Log("Current Ammo After UI Update: " + currentAmmo);
             UpdateReloadButton();
-            Debug.Log("Current Ammo After Reload Complete: " + currentAmmo);
         }
     }
 
@@ -71,5 +65,10 @@ public class AmmoManager : MonoBehaviour
     void UpdateReloadButton()
     {
         reloadButton.interactable = (currentAmmo < initialAmmo);
+    }
+
+    public int GetRemainingAmmo()
+    {
+        return currentAmmo;
     }
 }

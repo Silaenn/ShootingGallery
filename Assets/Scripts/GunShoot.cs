@@ -22,29 +22,22 @@ public class GunShoot : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            // Debug untuk melihat apa yang terjadi
-            Debug.Log("Klik terdeteksi");
-
-            // Cek apakah EventSystem ada
             if (EventSystem.current == null)
             {
                 Debug.LogError("EventSystem tidak ada di scene!");
                 return;
             }
 
-            // Cek apakah klik mengenai UI dengan lebih detail
             PointerEventData pointerData = new PointerEventData(EventSystem.current);
             pointerData.position = Input.mousePosition;
 
             List<RaycastResult> results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
 
-            // Cek hasil raycast UI
             foreach (RaycastResult result in results)
             {
                 Debug.Log("UI Raycast hit: " + result.gameObject.name);
 
-                // Jika kita mengenai tombol, jangan menembak
                 if (result.gameObject.GetComponent<Button>() != null)
                 {
                     Debug.Log("Klik pada tombol UI terdeteksi, tidak menembak");
@@ -52,8 +45,6 @@ public class GunShoot : MonoBehaviour
                 }
             }
 
-            // Tidak ada tombol UI yang terkena, aman untuk menembak
-            Debug.Log("Menembak...");
             Shoot();
         }
     }

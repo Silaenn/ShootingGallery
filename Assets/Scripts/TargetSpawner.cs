@@ -8,28 +8,85 @@ public class TargetSpawner : MonoBehaviour
     public GameObject[] bawahPrefabs;
     public GameObject[] tengahPrefabs;
     public float spawnInterval = 3f;
-    public int batchSIze = 3;
+    public int initialBatchSize = 3;
+
+    [Header("Difficulty Settings")]
+    public int maxBatchSize = 5;
+    public float minSpawnInterval = 1.5f;
+    public float difficultyIncreaseRate = 0.1f;
+
+    [Header("Ammo-Based Spawning")]
+    public AmmoManager ammoManager;
+    public bool useAmmoBasedSpawning = true;
 
     public Vector2 spawnRangeX = new Vector2(-6.84f, 6.84f);
     float[] spawnPositionsY = new float[] { -0.29f, -1.87f };
 
+    private int currentBatchSize;
+    private float currentSpawnInterval;
+    private int waveCount = 0;
+    private Coroutine spawnCoroutine;
 
     void Start()
     {
-        StartCoroutine(SpawnTargets());
+        currentBatchSize = initialBatchSize;
+        currentSpawnInterval = spawnInterval;
+
+        if (ammoManager == null)
+        {
+            ammoManager = FindObjectOfType<AmmoManager>();
+            if (ammoManager == null)
+            {
+                Debug.LogError("AmmoManager tidak ditemukan! Nonaktifkan useAmmoBasedSpawning atau tambahkan AmmoManager.");
+                useAmmoBasedSpawning = false;
+            }
+        }
+
+        spawnCoroutine = StartCoroutine(SpawnTargets());
     }
 
     IEnumerator SpawnTargets()
     {
         while (true)
         {
-            for (int i = 0; i < batchSIze; i++)
+            int targetsToSpawn;
+
+            if (useAmmoBasedSpawning && ammoManager != null)
             {
-                SpawnTarget();
+                int remainingAmmo = ammoManager.GetRemainingAmmo();
+
+                if (remainingAmmo >= 3)
+                {
+                    targetsToSpawn = 3;
+                }
+                else if (remainingAmmo == 2)
+                {
+                    targetsToSpawn = 2;
+                }
+                else
+                {
+                    targetsToSpawn = 1;
+                }
+            }
+            else
+            {
+                targetsToSpawn = currentBatchSize;
             }
 
+            // Spawn target
+            for (int i = 0; i < targetsToSpawn; i++)
+            {
+                SpawnTarget();
+                yield return new WaitForSeconds(0.2f);
+            }
 
-            yield return new WaitForSeconds(spawnInterval);
+            waveCount++;
+            if (waveCount % 3 == 0)
+            {
+                IncreaseDifficulty();
+            }
+
+            yield return new WaitForSeconds(currentSpawnInterval);
         }
     }
 
@@ -42,7 +99,41 @@ public class TargetSpawner : MonoBehaviour
         {
             GameObject randomPrefab = selectedPrefabs[UnityEngine.Random.Range(0, selectedPrefabs.Length)];
             Vector3 spawnPosition = new Vector3(UnityEngine.Random.Range(spawnRangeX.x, spawnRangeX.y), selectedY, 0);
-            Instantiate(randomPrefab, spawnPosition, Quaternion.identity);
+            GameObject newTarget = Instantiate(randomPrefab, spawnPosition, Quaternion.identity);
+
+            MovingTarget movingTarget = newTarget.GetComponent<MovingTarget>();
+            if (movingTarget != null)
+            {
+                float speedMultiplier = UnityEngine.Random.Range(0.8f, 1.2f);
+                movingTarget.moveSpeed *= speedMultiplier;
+            }
         }
+    }
+
+    private void IncreaseDifficulty()
+    {
+        if (currentBatchSize < maxBatchSize)
+        {
+            currentBatchSize++;
+        }
+
+        currentSpawnInterval = Mathf.Max(minSpawnInterval, currentSpawnInterval - difficultyIncreaseRate);
+
+        Debug.Log($"Kesulitan ditingkatkan: Batch={currentBatchSize}, Interval={currentSpawnInterval}");
+    }
+
+    // Fungsi untuk mereset spawner (bisa dipanggil dari GameManager)
+    public void ResetSpawner()
+    {
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+        }
+
+        currentBatchSize = initialBatchSize;
+        currentSpawnInterval = spawnInterval;
+        waveCount = 0;
+
+        spawnCoroutine = StartCoroutine(SpawnTargets());
     }
 }
