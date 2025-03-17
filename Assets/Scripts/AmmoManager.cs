@@ -9,29 +9,28 @@ public class AmmoManager : MonoBehaviour
     public Button reloadButton;
 
     [Header("Ammo Settings")]
-    public int initialAmmo = 4;
+    int initialAmmo;
     private int currentAmmo;
 
     void Start()
     {
+        initialAmmo = ammoIcons.Count;
+        Debug.Log(initialAmmo);
         currentAmmo = initialAmmo;
 
         for (int i = 0; i < ammoIcons.Count; i++)
         {
             ammoIcons[i].gameObject.SetActive(i < currentAmmo);
         }
-
-        UpdateReloadButton();
-
-        reloadButton.onClick.AddListener(ReloadAmmo);
     }
 
     public bool UseAmmo()
     {
         if (currentAmmo > 0)
         {
+            Debug.Log("Using ammo... Current Ammo Before: " + currentAmmo);
             currentAmmo--;
-            Debug.Log("Ammo used. Remaining: " + currentAmmo);
+            Debug.Log("Current Ammo After: " + currentAmmo);
 
             if (currentAmmo < ammoIcons.Count)
             {
@@ -53,18 +52,18 @@ public class AmmoManager : MonoBehaviour
     {
         if (currentAmmo < initialAmmo)
         {
+            Debug.Log("Reloading... Current Ammo Before: " + currentAmmo + ", Initial Ammo: " + initialAmmo);
             currentAmmo = initialAmmo;
-            Debug.Log("Jumlah ammo: " + currentAmmo + ", jumlah ikon: " + ammoIcons.Count);
+            Debug.Log("Current Ammo After Assignment: " + currentAmmo);
 
             for (int i = 0; i < ammoIcons.Count; i++)
             {
-                if (ammoIcons[i] == null)
-                {
-                    Debug.LogError("Ikon indeks " + i + " tidak terdaftar!");
-                    continue;
-                }
                 ammoIcons[i].gameObject.SetActive(i < currentAmmo);
             }
+
+            Debug.Log("Current Ammo After UI Update: " + currentAmmo);
+            UpdateReloadButton();
+            Debug.Log("Current Ammo After Reload Complete: " + currentAmmo);
         }
     }
 
