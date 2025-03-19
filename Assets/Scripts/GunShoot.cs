@@ -63,6 +63,7 @@ public class GunShoot : MonoBehaviour
         {
             if (hit.collider.CompareTag("Target"))
             {
+                AudioManager.Instance.ShootAudio();
                 MovingTarget target = hit.collider.GetComponent<MovingTarget>();
                 if (target != null)
                 {
@@ -108,6 +109,7 @@ public class GunShoot : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.ShootAudio();
             Debug.Log("Raycast tidak kena apa-apa!");
         }
     }

@@ -78,6 +78,7 @@ public class SurvivalTimer : MonoBehaviour
     void GameOver()
     {
         isGameOver = true;
+        AudioManager.Instance.StopBGM();
         Time.timeScale = 0;
         Debug.Log("Game Over! Final Score: " + score);
     }
