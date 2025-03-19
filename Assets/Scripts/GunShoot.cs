@@ -63,6 +63,16 @@ public class GunShoot : MonoBehaviour
         {
             if (hit.collider.CompareTag("Target"))
             {
+                MovingTarget target = hit.collider.GetComponent<MovingTarget>();
+                if (target != null)
+                {
+                    int targetScore = target.scoreValue;
+                    SurvivalTimer timer = FindAnyObjectByType<SurvivalTimer>();
+                    if (timer != null)
+                    {
+                        timer.AddScore(targetScore);
+                    }
+                }
                 SpriteRenderer targetSpriteRenderer = hit.collider.GetComponent<SpriteRenderer>();
 
                 Transform targetTransform = hit.collider.transform;

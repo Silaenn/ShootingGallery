@@ -49,6 +49,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6861769057403880370, guid: 12e17c818cd20c14e8ceefb287d1bcad, type: 3}
+      propertyPath: scoreValue
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6861769057403880370, guid: 12e17c818cd20c14e8ceefb287d1bcad, type: 3}
       propertyPath: startFacingRight
       value: 0
       objectReference: {fileID: 0}

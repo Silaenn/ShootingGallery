@@ -29,6 +29,7 @@ public class TargetSpawner : MonoBehaviour
 
     void Start()
     {
+
         currentBatchSize = initialBatchSize;
         currentSpawnInterval = spawnInterval;
 
@@ -73,7 +74,6 @@ public class TargetSpawner : MonoBehaviour
                 targetsToSpawn = currentBatchSize;
             }
 
-            // Spawn target
             for (int i = 0; i < targetsToSpawn; i++)
             {
                 SpawnTarget();
@@ -110,7 +110,7 @@ public class TargetSpawner : MonoBehaviour
         }
     }
 
-    private void IncreaseDifficulty()
+    public void IncreaseDifficulty()
     {
         if (currentBatchSize < maxBatchSize)
         {
@@ -122,7 +122,6 @@ public class TargetSpawner : MonoBehaviour
         Debug.Log($"Kesulitan ditingkatkan: Batch={currentBatchSize}, Interval={currentSpawnInterval}");
     }
 
-    // Fungsi untuk mereset spawner (bisa dipanggil dari GameManager)
     public void ResetSpawner()
     {
         if (spawnCoroutine != null)

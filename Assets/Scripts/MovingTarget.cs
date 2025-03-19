@@ -6,6 +6,7 @@ public class MovingTarget : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 2f;
+    public int scoreValue = 20;
     float amplitude = 0.6f;
     float frequency = 2f;
     public float destroyDistance = 18f;
