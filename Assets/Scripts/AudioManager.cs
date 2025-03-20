@@ -15,6 +15,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip bgmClip;
     public AudioClip soundClick;
 
+    bool isSoundMuted = false;
+    bool isMusicMuted = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -46,19 +49,45 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void ToggleSoundMute()
+    {
+        isSoundMuted = !isSoundMuted;
+        audioSource.mute = isSoundMuted;
+    }
+    public void ToggleMusicMute()
+    {
+        isMusicMuted = !isMusicMuted;
+        bgmSource.mute = isMusicMuted;
+    }
+    public bool IsSoundMuted()
+    {
+        return isSoundMuted;
+    }
+    public bool IsMusicMuted()
+    {
+        return isMusicMuted;
+    }
     public void ReloadAudio()
     {
-        Debug.Log("Masuk");
-        audioSource.PlayOneShot(soundReload);
+        if (!isSoundMuted)
+        {
+            audioSource.PlayOneShot(soundReload);
+        }
     }
 
     public void ShootAudio()
     {
-        audioSource.PlayOneShot(soundShoot);
+        if (!isSoundMuted)
+        {
+            audioSource.PlayOneShot(soundShoot);
+        }
     }
     public void ClickAudio()
     {
-        audioSource.PlayOneShot(soundClick);
+        if (!isSoundMuted)
+        {
+            audioSource.PlayOneShot(soundClick);
+        }
     }
 
     public void PlayBGM()
@@ -66,7 +95,10 @@ public class AudioManager : MonoBehaviour
         if (bgmClip != null)
         {
             bgmSource.clip = bgmClip;
-            bgmSource.Play();
+            if (!isMusicMuted)
+            {
+                bgmSource.Play();
+            }
         }
     }
 

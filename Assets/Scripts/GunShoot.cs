@@ -101,7 +101,7 @@ public class GunShoot : MonoBehaviour
                 float targetRotationAngle = targetTransform.localScale.x > 0 ? 180f : -180f;
                 Quaternion targetRotation = Quaternion.Euler(0, targetRotationAngle, 0);
 
-                StartCoroutine(RotateAndEnableGravity(targetTransform, targetRb, startRotation, targetRotation, lerpDuration));
+                StartCoroutine(PhysicsUtils.RotateAndEnableGravity(targetTransform, targetRb, startRotation, targetRotation, lerpDuration));
 
                 targetTransform.GetComponent<MovingTarget>().enabled = false;
 
@@ -116,26 +116,5 @@ public class GunShoot : MonoBehaviour
             Destroy(bulletMarkInstance, 3f);
             Debug.Log("Raycast tidak kena apa-apa!");
         }
-    }
-
-    IEnumerator RotateAndEnableGravity(Transform targetTransform, Rigidbody2D rb, Quaternion startRotation, Quaternion targetRotation, float lerpDuration)
-    {
-        float timer = 0f;
-
-        rb.gravityScale = 0f;
-
-        while (timer < lerpDuration)
-        {
-            timer += Time.deltaTime;
-            float t = timer / lerpDuration;
-            targetTransform.rotation = Quaternion.Lerp(startRotation, targetRotation, t);
-            yield return null;
-        }
-
-        targetTransform.rotation = targetRotation;
-
-        rb.gravityScale = 1f;
-
-        rb.velocity = new Vector2(0, -3f);
     }
 }
