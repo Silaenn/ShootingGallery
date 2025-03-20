@@ -6,17 +6,13 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
-    // AudioSource untuk suara efek
     AudioSource audioSource;
 
-    // AudioSource khusus untuk BGM
     AudioSource bgmSource;
 
-    // AudioClip untuk suara efek
     public AudioClip soundReload;
     public AudioClip soundShoot;
 
-    // AudioClip untuk BGM
     public AudioClip bgmClip;
 
     void Awake()

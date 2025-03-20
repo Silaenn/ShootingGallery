@@ -9,6 +9,7 @@ public class GunShoot : MonoBehaviour
 {
     public Sprite newSprite;
     public AmmoManager ammoManager;
+    public GameObject bulletMarks;
     Camera mainCamera;
 
     float timeDestroy = 3f;
@@ -110,6 +111,9 @@ public class GunShoot : MonoBehaviour
         else
         {
             AudioManager.Instance.ShootAudio();
+            Vector3 bulletMarkPosition = ray.origin + (ray.direction * 10f);
+            GameObject bulletMarkInstance = Instantiate(bulletMarks, bulletMarkPosition, Quaternion.identity);
+            Destroy(bulletMarkInstance, 3f);
             Debug.Log("Raycast tidak kena apa-apa!");
         }
     }
