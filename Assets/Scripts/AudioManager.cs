@@ -12,8 +12,8 @@ public class AudioManager : MonoBehaviour
 
     public AudioClip soundReload;
     public AudioClip soundShoot;
-
     public AudioClip bgmClip;
+    public AudioClip soundClick;
 
     void Awake()
     {
@@ -21,15 +21,18 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            Debug.Log("AudioManager initialized and set to DontDestroyOnLoad.");
         }
         else
         {
+            Debug.LogWarning("Duplicate AudioManager found. Destroying duplicate.");
             Destroy(gameObject);
-            return;
         }
+
+        InitializeAudioSources();
     }
 
-    void Start()
+    void InitializeAudioSources()
     {
         audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -45,12 +48,17 @@ public class AudioManager : MonoBehaviour
 
     public void ReloadAudio()
     {
+        Debug.Log("Masuk");
         audioSource.PlayOneShot(soundReload);
     }
 
     public void ShootAudio()
     {
         audioSource.PlayOneShot(soundShoot);
+    }
+    public void ClickAudio()
+    {
+        audioSource.PlayOneShot(soundClick);
     }
 
     public void PlayBGM()
