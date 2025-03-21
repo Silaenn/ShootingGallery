@@ -11,13 +11,14 @@ public class GunShoot : MonoBehaviour
     public AmmoManager ammoManager;
     public GameObject bulletMarks;
     Camera mainCamera;
-
     float timeDestroy = 3f;
+    PauseScene pauseScene;
 
     void Start()
     {
         mainCamera = Camera.main;
         Cursor.visible = false;
+        pauseScene = FindAnyObjectByType<PauseScene>();
     }
     void Update()
     {
@@ -52,13 +53,19 @@ public class GunShoot : MonoBehaviour
 
     void Shoot()
     {
-        if (!ammoManager.UseAmmo())
+        if (pauseScene != null && pauseScene.IsPaused())
         {
-            return;
+            return; // Blokir tembakan saat pause
         }
 
+        if (!ammoManager.UseAmmo())
+        {
+            return; // Blokir jika ammo habis
+        }
+
+        int layerMask = ~0;
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
+        RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, layerMask);
 
         if (hit.collider != null)
         {

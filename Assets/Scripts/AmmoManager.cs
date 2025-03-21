@@ -15,7 +15,6 @@ public class AmmoManager : MonoBehaviour
     void Start()
     {
         initialAmmo = ammoIcons.Count;
-        Debug.Log(initialAmmo);
         currentAmmo = initialAmmo;
 
         for (int i = 0; i < ammoIcons.Count; i++)

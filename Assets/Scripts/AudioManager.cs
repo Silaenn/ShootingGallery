@@ -5,9 +5,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
-
     AudioSource audioSource;
-
     AudioSource bgmSource;
 
     public AudioClip soundReload;
@@ -24,15 +22,17 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            Debug.Log("AudioManager initialized and set to DontDestroyOnLoad.");
         }
         else
         {
-            Debug.LogWarning("Duplicate AudioManager found. Destroying duplicate.");
             Destroy(gameObject);
         }
 
         InitializeAudioSources();
+
+        isMusicMuted = PlayerPrefs.GetInt("MusicMuted", 0) == 1;
+        isSoundMuted = PlayerPrefs.GetInt("SoundMuted", 0) == 1;
+        bgmSource.mute = isMusicMuted;
     }
 
     void InitializeAudioSources()
@@ -52,21 +52,28 @@ public class AudioManager : MonoBehaviour
     public void ToggleSoundMute()
     {
         isSoundMuted = !isSoundMuted;
+        PlayerPrefs.SetInt("SoundMuted", isSoundMuted ? 1 : 0);
+        PlayerPrefs.Save();
         audioSource.mute = isSoundMuted;
     }
     public void ToggleMusicMute()
     {
         isMusicMuted = !isMusicMuted;
+        PlayerPrefs.SetInt("MusicMuted", isMusicMuted ? 1 : 0);
+        PlayerPrefs.Save();
         bgmSource.mute = isMusicMuted;
+
     }
     public bool IsSoundMuted()
     {
-        return isSoundMuted;
+        return PlayerPrefs.GetInt("SoundMuted", 0) == 1;
     }
     public bool IsMusicMuted()
     {
-        return isMusicMuted;
+        int value = PlayerPrefs.GetInt("MusicMuted", 0);
+        return value == 1;
     }
+
     public void ReloadAudio()
     {
         if (!isSoundMuted)
