@@ -1,16 +1,19 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseScene : MonoBehaviour
 {
     [SerializeField] GameObject panelPause;
     [SerializeField] Sprite spritePause;
 
-    private SpriteRenderer spriteRenderer;
-    private bool isPaused = false;
+    SpriteRenderer spriteRenderer;
+    bool isPaused = false;
+    CrosshairController crosshairController;
 
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        crosshairController = FindAnyObjectByType<CrosshairController>();
         panelPause.SetActive(false);
     }
 
@@ -28,9 +31,19 @@ public class PauseScene : MonoBehaviour
 
     public void ResumeGame()
     {
+        AudioManager.Instance.ClickAudio();
         Time.timeScale = 1;
+        crosshairController.ResumeCrosshair();
         panelPause.SetActive(false);
         isPaused = false;
+    }
+
+    public void RestartGame()
+    {
+        AudioManager.Instance.ClickAudio();
+        Time.timeScale = 1;
+        panelPause.SetActive(false);
+        SceneManager.LoadScene("MainGame");
     }
 
     public bool IsPaused()
