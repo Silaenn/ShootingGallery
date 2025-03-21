@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CrosshairController : MonoBehaviour
 {
-    private PauseScene pauseScene;
+    PauseScene pauseScene;
 
     void Start()
     {
@@ -18,6 +18,7 @@ public class CrosshairController : MonoBehaviour
         if (pauseScene != null && pauseScene.IsPaused())
         {
             enabled = false;
+            Cursor.visible = true;
             return;
         }
 
