@@ -12,8 +12,9 @@ public class SurvivalTimer : MonoBehaviour
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI scoreText;
     public float timePerDifficultyIncrease = 15f;
-    private float difficultyTimer;
-    private int difficultyLevel = 1;
+    float difficultyTimer;
+    int difficultyLevel = 1;
+    [SerializeField] GameObject panelGameOver;
 
     public TargetSpawner targetSpawner;
     bool isGameOver = false;
@@ -80,6 +81,7 @@ public class SurvivalTimer : MonoBehaviour
         isGameOver = true;
         AudioManager.Instance.StopBGM();
         Time.timeScale = 0;
+        panelGameOver.SetActive(true);
         Debug.Log("Game Over! Final Score: " + score);
     }
 }
