@@ -56,7 +56,7 @@ public class AudioManager : MonoBehaviour
         if (bgmClip != null)
         {
             bgmSource.clip = bgmClip;
-            if (!isMusicMuted) bgmSource.Play();
+            if (!isMusicMuted && !bgmSource.isPlaying) bgmSource.Play();
         }
     }
 
@@ -74,7 +74,14 @@ public class AudioManager : MonoBehaviour
         {
             isMusicMuted = !isMusicMuted;
             PlayerPrefs.SetInt("MusicMuted", isMusicMuted ? 1 : 0);
-            bgmSource.mute = isMusicMuted;
+            if (bgmSource != null)
+            {
+                bgmSource.mute = isMusicMuted;
+                if (!isMusicMuted && !bgmSource.isPlaying)
+                {
+                    bgmSource.Play();
+                }
+            }
         }
         else
         {
@@ -111,7 +118,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlayBGM()
     {
-        if (bgmClip != null && bgmClip != null && !bgmSource.isPlaying)
+        if (bgmClip != null && !bgmSource.isPlaying)
         {
             if (!isMusicMuted)
             {
