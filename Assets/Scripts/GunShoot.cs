@@ -16,7 +16,6 @@ public class GunShoot : MonoBehaviour
     [SerializeField] float bulletMarkLifetime = 3f;
     [SerializeField] float targetDestroyDelay = 3f;
     [SerializeField] LayerMask targetLayerMask;
-    float timeDestroy = 3f;
 
     void Start()
     {
@@ -48,23 +47,21 @@ public class GunShoot : MonoBehaviour
             return false;
         }
 
-        PointerEventData pointerData = new PointerEventData(EventSystem.current);
-        pointerData.position = Input.mousePosition;
+        PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
         foreach (RaycastResult result in results)
         {
             Debug.Log("UI Raycast hit: " + result.gameObject.name);
-
             if (result.gameObject.GetComponent<Button>() != null)
             {
                 Debug.Log("Klik pada tombol UI terdeteksi, tidak menembak");
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     void Shoot()
@@ -97,10 +94,16 @@ public class GunShoot : MonoBehaviour
         }
 
         SpriteRenderer targetSpriteRenderer = hit.collider.GetComponent<SpriteRenderer>();
-        if (targetSpriteRenderer != null) targetSpriteRenderer.sprite = newSprite;
+        if (targetSpriteRenderer != null && newSprite != null) targetSpriteRenderer.sprite = newSprite;
 
         Transform targetTransform = hit.collider.transform;
-        Rigidbody2D targetRb = hit.collider.GetComponent<Rigidbody2D>() ?? hit.collider.gameObject.AddComponent<Rigidbody2D>();
+        Rigidbody2D targetRb = hit.collider.GetComponent<Rigidbody2D>();
+        if (targetRb == null)
+        {
+            Debug.LogError("Target " + hit.collider.gameObject.name + " tidak punya Rigidbody2D!");
+            return;
+        }
+
         Collider2D targetCollider = hit.collider.GetComponent<Collider2D>();
         if (targetCollider != null) targetCollider.enabled = false;
 
@@ -109,11 +112,15 @@ public class GunShoot : MonoBehaviour
         float targetRotationAngle = targetTransform.localScale.x > 0 ? 180f : -180f;
         Quaternion targetRotation = Quaternion.Euler(0, targetRotationAngle, 0);
 
+        targetRb.isKinematic = false;
         StartCoroutine(PhysicsUtils.RotateAndEnableGravity(targetTransform, targetRb, startRotation, targetRotation, lerpDuration));
 
-        targetTransform.GetComponent<MovingTarget>().enabled = false;
+        if (targetTransform.GetComponent<MovingTarget>() != null)
+        {
+            targetTransform.GetComponent<MovingTarget>().enabled = false;
+        }
 
-        Destroy(hit.collider.gameObject, timeDestroy);
+        Destroy(hit.collider.gameObject, targetDestroyDelay);
     }
 
     void SpawnBulletMark(Ray ray)
