@@ -33,6 +33,7 @@ public class MenuSet : MonoBehaviour
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.ClickAudio();
+            AudioManager.Instance.PlayBGM();
         }
         Time.timeScale = 1;
         SceneManager.LoadScene(mainMenuSceneName);
@@ -51,6 +52,7 @@ public class MenuSet : MonoBehaviour
         if ((pauseScene != null && pauseScene.IsPaused()) || (survivalTimer != null && survivalTimer.IsGameOver()))
         {
             pauseScene.RestartGame();
+            AudioManager.Instance.PlayBGM();
         }
     }
 
