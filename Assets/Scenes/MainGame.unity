@@ -265,12 +265,17 @@ MonoBehaviour:
   - {fileID: 6118176252628305268, guid: d20c3b709de10e643ade6912cb48b206, type: 3}
   spawnInterval: 2
   initialBatchSize: 5
+  initialBatchDelay: 0.2
   maxBatchSize: 5
   minSpawnInterval: 1.5
   difficultyIncreaseRate: 0.1
-  ammoManager: {fileID: 0}
+  wavesPerDifficultyIncrease: 3
+  ammoManager: {fileID: 529431500}
   useAmmoBasedSpawning: 1
   spawnRangeX: {x: -2.72, y: 2.72}
+  spawnPositionsY:
+  - -0.29
+  - -1.87
 --- !u!4 &60406823
 Transform:
   m_ObjectHideFlags: 0
@@ -470,7 +475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd868a487e217e42bfcdbc9cf981b32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseScene: {fileID: 0}
+  pauseScene: {fileID: 221322332}
 --- !u!114 &76930073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4278,7 +4283,7 @@ MonoBehaviour:
   ammoManager: {fileID: 529431500}
   bulletMarks: {fileID: 321123440800038617, guid: 735176f4313f4bc479356b05f2fc4a54, type: 3}
   mainCamera: {fileID: 0}
-  pauseScene: {fileID: 0}
+  pauseScene: {fileID: 221322332}
   bulletMarkLifetime: 3
   targetDestroyDelay: 3
   targetLayerMask:
@@ -5832,7 +5837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ec0b0773c62d0d4e9a6e725232ad4fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseScene: {fileID: 0}
+  pauseScene: {fileID: 221322332}
   mainMenuSceneName: MainMenu
 --- !u!4 &1201824821
 Transform:
@@ -7790,15 +7795,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3d800fccf2f43a4590b2ad5cb7c115c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLeft: 60
-  score: 0
-  scoreToBonus: 180
+  timeLeft: 1
   bonusTime: 10
+  scoreToBonus: 180
+  timePerDifficultyIncrease: 15
   timerText: {fileID: 1755903111}
   scoreText: {fileID: 1278128421}
-  timePerDifficultyIncrease: 15
   panelGameOver: {fileID: 1169420019}
   targetSpawner: {fileID: 60406822}
+  gunShoot: {fileID: 905543682}
+  gunMovement: {fileID: 905543679}
+  crosshairController: {fileID: 76930072}
 --- !u!114 &1755903111
 MonoBehaviour:
   m_ObjectHideFlags: 0
