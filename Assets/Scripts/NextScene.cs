@@ -4,9 +4,17 @@ using UnityEngine.SceneManagement;
 
 public class NextScene : MonoBehaviour
 {
-    public Sprite newChildSprite;
-    public GameObject childObject;
-    public GameObject textGo;
+    [Header("Visual Settings")]
+    [SerializeField] Sprite newChildSprite;
+    [SerializeField] GameObject childObject;
+    [SerializeField] GameObject textGo;
+
+    [Header("Rotation Settings")]
+    [SerializeField] float lerpDuration = 0.5f;
+    [SerializeField] float rotationAngle = 180f;
+
+    [Header("Scene Settings")]
+    [SerializeField] string nextSceneName;
 
     SpriteRenderer childSpriteRenderer;
 
@@ -20,15 +28,26 @@ public class NextScene : MonoBehaviour
         {
             childSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
+
+        if (childSpriteRenderer == null)
+        {
+            Debug.LogWarning("Child SpriteRenderer tidak ditemukan pada " + gameObject.name);
+        }
     }
     void OnMouseDown()
     {
-        AudioManager.Instance.ClickAudio();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.ClickAudio();
+        }
 
         if (childSpriteRenderer != null && newChildSprite != null)
         {
             childSpriteRenderer.sprite = newChildSprite;
-            textGo.SetActive(false);
+            if (textGo != null)
+            {
+                textGo.SetActive(false);
+            }
         }
         else
         {
@@ -40,13 +59,20 @@ public class NextScene : MonoBehaviour
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody2D>();
+            if (rb == null)
+            {
+                Debug.LogError("Gagal menambahkan Rigidbody2D ke " + gameObject.name);
+                return;
+            }
         }
 
         Quaternion startRotation = targetTransform.rotation;
-        Quaternion targetRotation = Quaternion.Euler(0, 180f, 0);
-        float lerpDuration = 0.5f;
+        Quaternion targetRotation = Quaternion.Euler(0, rotationAngle, 0);
 
-        StartCoroutine(PhysicsUtils.RotateAndEnableGravity(targetTransform, rb, startRotation, targetRotation, lerpDuration));
+        if (rb != null)
+        {
+            StartCoroutine(PhysicsUtils.RotateAndEnableGravity(targetTransform, rb, startRotation, targetRotation, lerpDuration));
+        }
 
         StartCoroutine(LoadNextSceneAfterDelay(lerpDuration));
     }
@@ -54,11 +80,25 @@ public class NextScene : MonoBehaviour
     IEnumerator LoadNextSceneAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.LogWarning("Tidak ada scene berikutnya! kembali ke MainMenu");
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 
     public void BackToMenu()
     {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.ClickAudio();
+        }
         SceneManager.LoadScene("MainMenu");
     }
 

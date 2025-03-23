@@ -5,33 +5,43 @@ using UnityEngine;
 public class TargetSpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
-    public GameObject[] bawahPrefabs;
-    public GameObject[] tengahPrefabs;
-    public float spawnInterval = 3f;
-    public int initialBatchSize = 3;
+    [SerializeField] GameObject[] bawahPrefabs;
+    [SerializeField] GameObject[] tengahPrefabs;
+    [SerializeField] float spawnInterval = 3f;
+    [SerializeField] int initialBatchSize = 3;
+    [SerializeField] float initialBatchDelay = 0.2f;
 
     [Header("Difficulty Settings")]
-    public int maxBatchSize = 5;
-    public float minSpawnInterval = 1.5f;
-    public float difficultyIncreaseRate = 0.1f;
+    [SerializeField] int maxBatchSize = 5;
+    [SerializeField] float minSpawnInterval = 1.5f;
+    [SerializeField] float difficultyIncreaseRate = 0.1f;
+    [SerializeField] float wavesPerDifficultyIncrease = 3f;
 
     [Header("Ammo-Based Spawning")]
-    public AmmoManager ammoManager;
-    public bool useAmmoBasedSpawning = true;
+    [SerializeField] AmmoManager ammoManager;
+    [SerializeField] bool useAmmoBasedSpawning = true;
 
-    public Vector2 spawnRangeX = new Vector2(-6.84f, 6.84f);
-    float[] spawnPositionsY = new float[] { -0.29f, -1.87f };
+    [SerializeField] Vector2 spawnRangeX = new Vector2(-6.84f, 6.84f);
+    [SerializeField] float[] spawnPositionsY = new float[] { -0.29f, -1.87f };
 
-    private int currentBatchSize;
-    private float currentSpawnInterval;
-    private int waveCount = 0;
-    private Coroutine spawnCoroutine;
+    int currentBatchSize;
+    float currentSpawnInterval;
+    int waveCount = 0;
+    Coroutine spawnCoroutine;
+    bool isSpawning = true;
 
     void Start()
     {
 
         currentBatchSize = initialBatchSize;
         currentSpawnInterval = spawnInterval;
+
+        if (bawahPrefabs == null || bawahPrefabs.Length == 0 || tengahPrefabs == null || tengahPrefabs.Length == 0)
+        {
+            Debug.LogError("BawahPrefabs atau TengahPrefabs tidak diatur atau kosong! Spawner tidak akan bekerja.");
+            enabled = false;
+            return;
+        }
 
         if (ammoManager == null)
         {
@@ -48,40 +58,18 @@ public class TargetSpawner : MonoBehaviour
 
     IEnumerator SpawnTargets()
     {
-        while (true)
+        while (isSpawning)
         {
-            int targetsToSpawn;
-
-            if (useAmmoBasedSpawning && ammoManager != null)
-            {
-                int remainingAmmo = ammoManager.GetRemainingAmmo();
-
-                if (remainingAmmo >= 3)
-                {
-                    targetsToSpawn = 3;
-                }
-                else if (remainingAmmo == 2)
-                {
-                    targetsToSpawn = 2;
-                }
-                else
-                {
-                    targetsToSpawn = 1;
-                }
-            }
-            else
-            {
-                targetsToSpawn = currentBatchSize;
-            }
+            int targetsToSpawn = CalculateTargetsToSpawn();
 
             for (int i = 0; i < targetsToSpawn; i++)
             {
                 SpawnTarget();
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(initialBatchDelay);
             }
 
             waveCount++;
-            if (waveCount % 3 == 0)
+            if (waveCount % wavesPerDifficultyIncrease == 0)
             {
                 IncreaseDifficulty();
             }
@@ -90,7 +78,21 @@ public class TargetSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnTarget()
+    int CalculateTargetsToSpawn()
+    {
+        if (useAmmoBasedSpawning && ammoManager != null)
+        {
+            int remainingAmmo = ammoManager.GetRemainingAmmo();
+
+            if (remainingAmmo >= 3) return 3;
+            if (remainingAmmo == 2) return 2;
+            return 1;
+        }
+
+        return currentBatchSize;
+    }
+
+    void SpawnTarget()
     {
         float selectedY = spawnPositionsY[UnityEngine.Random.Range(0, spawnPositionsY.Length)];
         GameObject[] selectedPrefabs = (selectedY == -0.29f) ? tengahPrefabs : bawahPrefabs;
@@ -132,7 +134,18 @@ public class TargetSpawner : MonoBehaviour
         currentBatchSize = initialBatchSize;
         currentSpawnInterval = spawnInterval;
         waveCount = 0;
+        isSpawning = true;
 
         spawnCoroutine = StartCoroutine(SpawnTargets());
+    }
+
+    public void StopSpawning()
+    {
+        isSpawning = false;
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
     }
 }

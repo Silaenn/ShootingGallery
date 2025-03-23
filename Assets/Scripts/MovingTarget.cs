@@ -7,10 +7,10 @@ public class MovingTarget : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 2f;
     public int scoreValue = 20;
-    float amplitude = 0.6f;
-    float frequency = 2f;
-    public float destroyDistance = 18f;
-    public bool startFacingRight = true;
+    [SerializeField] float amplitude = 0.6f;
+    [SerializeField] float frequency = 2f;
+    [SerializeField] float destroyDistance = 18f;
+    [SerializeField] bool startFacingRight = true;
 
     Vector2 startPosition;
     SpriteRenderer spriteRenderer;
@@ -20,6 +20,13 @@ public class MovingTarget : MonoBehaviour
     {
         startPosition = transform.position;
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("SpriteRenderer tidak ditemukan pada " + gameObject.name);
+            enabled = false;
+            return;
+        }
+
         direction = startFacingRight ? 1 : -1;
         FlipSprite();
     }
@@ -53,7 +60,10 @@ public class MovingTarget : MonoBehaviour
 
     void FlipSprite()
     {
-        spriteRenderer.flipX = (direction == -1);
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.flipX = (direction == -1);
+        }
     }
 
 }

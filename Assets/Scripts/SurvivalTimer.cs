@@ -1,27 +1,55 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 public class SurvivalTimer : MonoBehaviour
 {
-    public float timeLeft = 60f;
-    public int score = 0;
-    public int scoreToBonus = 180;
-    public float bonusTime = 10f;
-    public TextMeshProUGUI timerText;
-    public TextMeshProUGUI scoreText;
-    public float timePerDifficultyIncrease = 15f;
+    [Header("Timer Settings")]
+    [SerializeField] float timeLeft = 60f;
+    [SerializeField] float bonusTime = 10f;
+    [SerializeField] int scoreToBonus = 180;
+    [SerializeField] float timePerDifficultyIncrease = 15f;
+
+    [Header("UI Elements")]
+    [SerializeField] TextMeshProUGUI timerText;
+    [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] GameObject panelGameOver;
+    [SerializeField] TextMeshProUGUI gameOverScoreText;
+    [SerializeField] TextMeshProUGUI gameOverHighScoreText;
+
+    [Header("References")]
+
+    [SerializeField] TargetSpawner targetSpawner;
+    [SerializeField] GunShoot gunShoot;
+    [SerializeField] GunMovement gunMovement;
+    [SerializeField] CrosshairController crosshairController;
+    int score = 0;
     float difficultyTimer;
     int difficultyLevel = 1;
-    [SerializeField] GameObject panelGameOver;
-
-    public TargetSpawner targetSpawner;
     bool isGameOver = false;
+    float lastTimeDIsplayed = -1f;
+    const string HIGH_SCORE_KEY = "HighScore";
 
     void Start()
     {
         difficultyTimer = timePerDifficultyIncrease;
+
+        if (timerText == null || scoreText == null || panelGameOver == null)
+        {
+            Debug.LogError("TimerText, ScoreText, atau PanelGameOver tidak diatur di Inspector!");
+        }
+        if (targetSpawner == null)
+        {
+            targetSpawner = FindObjectOfType<TargetSpawner>();
+            if (targetSpawner == null) Debug.LogWarning("TargetSpawner tidak ditemukan!");
+        }
+        if (gunShoot == null) gunShoot = FindObjectOfType<GunShoot>();
+        if (gunMovement == null) gunMovement = FindObjectOfType<GunMovement>();
+        if (crosshairController == null) crosshairController = FindObjectOfType<CrosshairController>();
+
+        UpdateUI();
+        panelGameOver.SetActive(false);
     }
 
     private void Update()
@@ -37,31 +65,39 @@ public class SurvivalTimer : MonoBehaviour
                 IncreaseDifficulty();
                 difficultyTimer = timePerDifficultyIncrease;
             }
-        }
 
-
-        if (timeLeft <= 0)
-        {
-            timeLeft = 0;
-            GameOver();
-        }
-
-        if (score >= scoreToBonus)
-        {
-            AddBonusTime();
+            if (timeLeft <= 0)
+            {
+                timeLeft = 0;
+                GameOver();
+            }
         }
     }
 
     void UpdateUI()
     {
-        timerText.text = Mathf.Max(0, timeLeft).ToString("F0");
-        scoreText.text = "Score: " + score;
-        if (timeLeft < 5f) timerText.color = Color.red;
-        else timerText.color = Color.white;
+        if (timerText != null && Mathf.Abs(timeLeft - lastTimeDIsplayed) > 0.1f)
+        {
+            timerText.text = Mathf.Max(0, timeLeft).ToString("F0");
+            timerText.color = timeLeft < 5f ? Color.red : Color.white;
+            lastTimeDIsplayed = timeLeft;
+        }
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + score;
+        }
     }
     public void AddScore(int points)
     {
-        score += points;
+        if (!isGameOver)
+        {
+            score += points;
+            if (score >= scoreToBonus)
+            {
+                AddBonusTime();
+            }
+            UpdateUI();
+        }
     }
 
     void AddBonusTime()
@@ -73,34 +109,71 @@ public class SurvivalTimer : MonoBehaviour
     void IncreaseDifficulty()
     {
         difficultyLevel++;
-        targetSpawner.IncreaseDifficulty();
+        if (targetSpawner != null)
+        {
+            targetSpawner.IncreaseDifficulty();
+        }
     }
 
     void GameOver()
     {
-        if (AudioManager.Instance == null)
-        {
-            Debug.LogError("AudioManager.Instance tidak ditemukan! Pastikan AudioManager ada di scene.");
-            return;
-        }
+        if (isGameOver) return;
 
         isGameOver = true;
-        AudioManager.Instance.StopBGM();
-        panelGameOver.SetActive(true);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBGM();
+        }
+        else
+        {
+            Debug.LogError("AudioManager.Instance tidak ditemukan! Pastikan AudioManager ada di scene.");
+        }
+
+        if (panelGameOver != null) panelGameOver.SetActive(true);
         Cursor.visible = true;
 
-        var gunShoot = FindAnyObjectByType<GunShoot>();
         if (gunShoot != null) gunShoot.enabled = false;
 
-        var gunMovement = FindAnyObjectByType<GunMovement>();
         if (gunMovement != null) gunMovement.enabled = false;
 
-        var crosshairController = FindAnyObjectByType<CrosshairController>();
         if (crosshairController != null) crosshairController.enabled = false;
 
-        var targetSpawner = FindAnyObjectByType<TargetSpawner>();
-        if (targetSpawner != null) targetSpawner.enabled = false;
+        if (targetSpawner != null)
+        {
+            targetSpawner.enabled = false;
+            targetSpawner.StopSpawning();
+        }
+
+        UpdateGameOverUI();
 
         Debug.Log("Game Over! Final Score: " + score);
+    }
+
+    void UpdateGameOverUI()
+    {
+        int highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
+
+        if (score > highScore)
+        {
+            highScore = score;
+            PlayerPrefs.SetInt(HIGH_SCORE_KEY, highScore);
+            PlayerPrefs.Save();
+        }
+
+        if (gameOverScoreText != null)
+        {
+            gameOverScoreText.text = "Score : " + score;
+        }
+
+        if (gameOverHighScoreText != null)
+        {
+            gameOverHighScoreText.text = "HighScore : " + highScore;
+        }
+
+        if (score == highScore)
+        {
+            gameOverHighScoreText.color = Color.yellow;
+        }
     }
 }
