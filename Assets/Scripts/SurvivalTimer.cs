@@ -176,4 +176,9 @@ public class SurvivalTimer : MonoBehaviour
             gameOverHighScoreText.color = Color.yellow;
         }
     }
+
+    public bool IsGameOver()
+    {
+        return isGameOver;
+    }
 }

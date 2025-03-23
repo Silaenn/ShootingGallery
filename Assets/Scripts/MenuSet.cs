@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class MenuSet : MonoBehaviour
 {
     [SerializeField] PauseScene pauseScene;
+    [SerializeField] SurvivalTimer survivalTimer;
     [SerializeField] string mainMenuSceneName = "MainMenu";
 
     void Start()
@@ -16,6 +17,14 @@ public class MenuSet : MonoBehaviour
             if (pauseScene == null)
             {
                 Debug.LogWarning("PauseScene tdiak ditemukan di scene!");
+            }
+        }
+        if (survivalTimer == null)
+        {
+            survivalTimer = FindAnyObjectByType<SurvivalTimer>();
+            if (survivalTimer == null)
+            {
+                Debug.LogWarning("SurvivalTimer tdiak ditemukan di scene!");
             }
         }
     }
@@ -39,7 +48,7 @@ public class MenuSet : MonoBehaviour
 
     public void RestartGame()
     {
-        if (pauseScene != null && pauseScene.IsPaused())
+        if ((pauseScene != null && pauseScene.IsPaused()) || (survivalTimer != null && survivalTimer.IsGameOver()))
         {
             pauseScene.RestartGame();
         }
