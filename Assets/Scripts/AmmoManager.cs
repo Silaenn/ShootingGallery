@@ -10,18 +10,29 @@ public class AmmoManager : MonoBehaviour
 
     [Header("Ammo Settings")]
     int initialAmmo;
-    private int currentAmmo;
+    int currentAmmo;
 
     void Start()
     {
+        if (ammoIcons == null || ammoIcons.Count == 0)
+        {
+            Debug.LogError("AmmoIcons list is empty or not assigned!");
+            return;
+        }
+        if (reloadButton == null)
+        {
+            Debug.LogError("ReloadButton is not assigned!");
+            return;
+        }
+
         initialAmmo = ammoIcons.Count;
         currentAmmo = initialAmmo;
 
-        for (int i = 0; i < ammoIcons.Count; i++)
-        {
-            ammoIcons[i].gameObject.SetActive(i < currentAmmo);
-        }
+        UpdateAmmoUI();
+        UpdateReloadButton();
     }
+
+
 
     public bool UseAmmo()
     {
@@ -29,13 +40,8 @@ public class AmmoManager : MonoBehaviour
         {
             currentAmmo--;
 
-            if (currentAmmo < ammoIcons.Count)
-            {
-                ammoIcons[currentAmmo].gameObject.SetActive(false);
-            }
-
+            UpdateAmmoUI();
             UpdateReloadButton();
-
             return true;
         }
         else
@@ -50,13 +56,16 @@ public class AmmoManager : MonoBehaviour
         if (currentAmmo < initialAmmo)
         {
             currentAmmo = initialAmmo;
-
-            for (int i = 0; i < ammoIcons.Count; i++)
-            {
-                ammoIcons[i].gameObject.SetActive(i < currentAmmo);
-            }
-
+            UpdateAmmoUI();
             UpdateReloadButton();
+        }
+    }
+
+    void UpdateAmmoUI()
+    {
+        for (int i = 0; i < ammoIcons.Count; i++)
+        {
+            ammoIcons[i].gameObject.SetActive(i < currentAmmo);
         }
     }
 

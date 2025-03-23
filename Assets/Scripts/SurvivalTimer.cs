@@ -78,10 +78,29 @@ public class SurvivalTimer : MonoBehaviour
 
     void GameOver()
     {
+        if (AudioManager.Instance == null)
+        {
+            Debug.LogError("AudioManager.Instance tidak ditemukan! Pastikan AudioManager ada di scene.");
+            return;
+        }
+
         isGameOver = true;
         AudioManager.Instance.StopBGM();
-        Time.timeScale = 0;
         panelGameOver.SetActive(true);
+        Cursor.visible = true;
+
+        var gunShoot = FindAnyObjectByType<GunShoot>();
+        if (gunShoot != null) gunShoot.enabled = false;
+
+        var gunMovement = FindAnyObjectByType<GunMovement>();
+        if (gunMovement != null) gunMovement.enabled = false;
+
+        var crosshairController = FindAnyObjectByType<CrosshairController>();
+        if (crosshairController != null) crosshairController.enabled = false;
+
+        var targetSpawner = FindAnyObjectByType<TargetSpawner>();
+        if (targetSpawner != null) targetSpawner.enabled = false;
+
         Debug.Log("Game Over! Final Score: " + score);
     }
 }

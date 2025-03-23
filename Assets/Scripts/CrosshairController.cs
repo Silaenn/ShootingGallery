@@ -2,32 +2,57 @@ using UnityEngine;
 
 public class CrosshairController : MonoBehaviour
 {
-    PauseScene pauseScene;
+    [SerializeField] PauseScene pauseScene;
+    RectTransform crosshairRect;
 
     void Start()
     {
-        pauseScene = FindObjectOfType<PauseScene>();
         if (pauseScene == null)
         {
-            Debug.LogError("PauseScene tidak ditemukan di scene!");
+            pauseScene = FindObjectOfType<PauseScene>();
+            if (pauseScene == null)
+            {
+                Debug.LogError("PauseScene tidak ditemukan di scene!");
+            }
         }
+
+        crosshairRect = GetComponent<RectTransform>();
+        if (crosshairRect == null)
+        {
+            Debug.LogError("CrosshairController membutuhkan RectTransform untuk UI!");
+        }
+
+        UpdateCursorVisibility();
     }
 
     void Update()
     {
-        if (pauseScene != null && pauseScene.IsPaused())
+        if (pauseScene.IsPaused())
         {
-            enabled = false;
             Cursor.visible = true;
             return;
         }
 
-        Vector3 mousePosition = Input.mousePosition;
-        transform.position = mousePosition;
+        UpdateCrosshairPosition();
+        Cursor.visible = false;
     }
 
-    public void ResumeCrosshair()
+    void UpdateCrosshairPosition()
     {
-        enabled = true;
+        if (crosshairRect != null)
+        {
+            Vector3 mousePosition = Input.mousePosition;
+            transform.position = mousePosition;
+        }
+    }
+
+    void UpdateCursorVisibility()
+    {
+        Cursor.visible = pauseScene != null && pauseScene.IsPaused();
+    }
+
+    public void OnResume()
+    {
+        UpdateCursorVisibility();
     }
 }

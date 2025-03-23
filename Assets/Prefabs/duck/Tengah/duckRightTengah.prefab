@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 1579062396558759067}
   - component: {fileID: 5882761236449672928}
   - component: {fileID: 4778975171939031746}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: duckRightTengah
   m_TagString: Target
   m_Icon: {fileID: 0}
@@ -183,6 +183,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f85da38915db784dbe691bfb1965614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 2
+  scoreValue: 20
   destroyDistance: 18
   startFacingRight: 1
 --- !u!61 &4778975171939031746

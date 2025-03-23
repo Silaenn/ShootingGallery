@@ -13,6 +13,7 @@ public class MenuSet : MonoBehaviour
     }
     public void MainMenu()
     {
+        Debug.Log("Masuk MainMenu");
         AudioManager.Instance.ClickAudio();
         Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");

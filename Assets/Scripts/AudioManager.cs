@@ -5,13 +5,19 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
+
+    [Header("Audio Sources")]
     AudioSource audioSource;
     AudioSource bgmSource;
 
+    [Header("Audio Clips")]
     public AudioClip soundReload;
     public AudioClip soundShoot;
-    public AudioClip bgmClip;
     public AudioClip soundClick;
+    public AudioClip bgmClip;
+
+    [Header("Settings")]
+    [SerializeField][Range(0f, 1f)] float bgmVolume = 0.644f;
 
     bool isSoundMuted = false;
     bool isMusicMuted = false;
@@ -29,79 +35,84 @@ public class AudioManager : MonoBehaviour
         }
 
         InitializeAudioSources();
-
-        isMusicMuted = PlayerPrefs.GetInt("MusicMuted", 0) == 1;
-        isSoundMuted = PlayerPrefs.GetInt("SoundMuted", 0) == 1;
-        bgmSource.mute = isMusicMuted;
+        LoadMuteSettings();
+        SetupBGM();
     }
 
     void InitializeAudioSources()
     {
-        audioSource = gameObject.AddComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
-        bgmSource = gameObject.AddComponent<AudioSource>();
-        bgmSource.volume = 0.644f;
-        bgmSource.loop = true;
-
-        if (bgmClip != null)
+        if (bgmSource == null)
         {
-            PlayBGM();
+            bgmSource = gameObject.AddComponent<AudioSource>();
+            bgmSource.loop = true;
+            bgmSource.volume = bgmVolume;
         }
     }
 
-    public void ToggleSoundMute()
+    void SetupBGM()
     {
-        isSoundMuted = !isSoundMuted;
-        PlayerPrefs.SetInt("SoundMuted", isSoundMuted ? 1 : 0);
-        PlayerPrefs.Save();
+        if (bgmClip != null)
+        {
+            bgmSource.clip = bgmClip;
+            if (!isMusicMuted) bgmSource.Play();
+        }
+    }
+
+    void LoadMuteSettings()
+    {
+        isMusicMuted = PlayerPrefs.GetInt("MusicMuted", 0) == 1;
+        isSoundMuted = PlayerPrefs.GetInt("SoundMuted", 0) == 1;
+        bgmSource.mute = isMusicMuted;
         audioSource.mute = isSoundMuted;
     }
-    public void ToggleMusicMute()
-    {
-        isMusicMuted = !isMusicMuted;
-        PlayerPrefs.SetInt("MusicMuted", isMusicMuted ? 1 : 0);
-        PlayerPrefs.Save();
-        bgmSource.mute = isMusicMuted;
 
-    }
-    public bool IsSoundMuted()
+    public void ToggleMute(bool isMusic)
     {
-        return PlayerPrefs.GetInt("SoundMuted", 0) == 1;
+        if (isMusic)
+        {
+            isMusicMuted = !isMusicMuted;
+            PlayerPrefs.SetInt("MusicMuted", isMusicMuted ? 1 : 0);
+            bgmSource.mute = isMusicMuted;
+        }
+        else
+        {
+            isSoundMuted = !isSoundMuted;
+            PlayerPrefs.SetInt("SoundMuted", isSoundMuted ? 1 : 0);
+            audioSource.mute = isSoundMuted;
+        }
+        PlayerPrefs.Save();
     }
-    public bool IsMusicMuted()
-    {
-        int value = PlayerPrefs.GetInt("MusicMuted", 0);
-        return value == 1;
-    }
+    public bool IsSoundMuted() => isSoundMuted;
+    public bool IsMusicMuted() => isMusicMuted;
 
     public void ReloadAudio()
     {
-        if (!isSoundMuted)
-        {
-            audioSource.PlayOneShot(soundReload);
-        }
+        PlaySFX(soundReload);
     }
 
     public void ShootAudio()
     {
-        if (!isSoundMuted)
-        {
-            audioSource.PlayOneShot(soundShoot);
-        }
+        PlaySFX(soundShoot);
     }
     public void ClickAudio()
     {
-        if (!isSoundMuted)
+        PlaySFX(soundClick);
+    }
+
+    void PlaySFX(AudioClip clip)
+    {
+        if (!isSoundMuted && clip != null)
         {
-            audioSource.PlayOneShot(soundClick);
+            audioSource.PlayOneShot(clip);
         }
     }
 
     public void PlayBGM()
     {
-        if (bgmClip != null)
+        if (bgmClip != null && bgmClip != null && !bgmSource.isPlaying)
         {
-            bgmSource.clip = bgmClip;
             if (!isMusicMuted)
             {
                 bgmSource.Play();
@@ -111,6 +122,6 @@ public class AudioManager : MonoBehaviour
 
     public void StopBGM()
     {
-        bgmSource.Stop();
+        if (bgmSource != null) bgmSource.Stop();
     }
 }

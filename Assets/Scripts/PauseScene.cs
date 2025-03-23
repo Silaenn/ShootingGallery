@@ -13,7 +13,7 @@ public class PauseScene : MonoBehaviour
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        crosshairController = FindAnyObjectByType<CrosshairController>();
+        crosshairController = FindObjectOfType<CrosshairController>();
         panelPause.SetActive(false);
     }
 
@@ -33,17 +33,19 @@ public class PauseScene : MonoBehaviour
     {
         AudioManager.Instance.ClickAudio();
         Time.timeScale = 1;
-        crosshairController.ResumeCrosshair();
-        panelPause.SetActive(false);
+        if (crosshairController != null)
+        {
+            crosshairController.OnResume();
+        }
         isPaused = false;
     }
 
     public void RestartGame()
     {
+        Debug.Log("Masuk MainGame");
         AudioManager.Instance.ClickAudio();
         Time.timeScale = 1;
-        panelPause.SetActive(false);
-        SceneManager.LoadScene("MainGame");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public bool IsPaused()
