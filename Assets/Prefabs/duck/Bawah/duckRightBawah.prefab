@@ -84,7 +84,8 @@ PrefabInstance:
       propertyPath: startFacingRight
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3418349826416621491, guid: 7f238e1c70a287242abe285b573136b4, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

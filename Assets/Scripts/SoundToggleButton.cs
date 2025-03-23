@@ -5,26 +5,40 @@ using UnityEngine;
 
 public class SoundToggleButton : MonoBehaviour
 {
-    public Sprite soundOnSprite;
-    public Sprite soundOffSprite;
+    [SerializeField] Sprite soundOnSprite;
+    [SerializeField] Sprite soundOffSprite;
 
     SpriteRenderer spriteRenderer;
 
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (AudioManager.Instance == null)
+        {
+            Debug.LogError("AudioManager.Instance tidak ditemukan! Pastikan AudioManager ada di scene.");
+            return;
+        }
 
-        spriteRenderer.sprite = AudioManager.Instance.IsSoundMuted() ? soundOffSprite : soundOnSprite;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        UpdateSprite();
     }
 
     void OnMouseDown()
     {
-        AudioManager.Instance.ToggleSoundMute();
-        spriteRenderer.sprite = AudioManager.Instance.IsSoundMuted() ? soundOffSprite : soundOnSprite;
+        AudioManager.Instance.ToggleMute(false);
+        UpdateSprite();
 
         if (!AudioManager.Instance.IsSoundMuted())
         {
             AudioManager.Instance.ClickAudio();
         }
     }
+
+    void UpdateSprite()
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sprite = AudioManager.Instance.IsSoundMuted() ? soundOffSprite : soundOnSprite;
+        }
+    }
+
 }

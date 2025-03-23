@@ -5,20 +5,31 @@ using UnityEngine.SceneManagement;
 
 public class MenuSet : MonoBehaviour
 {
-    PauseScene pauseScene;
+    [SerializeField] PauseScene pauseScene;
+    [SerializeField] string mainMenuSceneName = "MainMenu";
 
     void Start()
     {
-        pauseScene = FindAnyObjectByType<PauseScene>();
+        if (pauseScene == null)
+        {
+            pauseScene = FindAnyObjectByType<PauseScene>();
+            if (pauseScene == null)
+            {
+                Debug.LogWarning("PauseScene tdiak ditemukan di scene!");
+            }
+        }
     }
     public void MainMenu()
     {
-        AudioManager.Instance.ClickAudio();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.ClickAudio();
+        }
         Time.timeScale = 1;
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    public void ReseumeIfPause()
+    public void ResumeIfPause()
     {
         if (pauseScene != null && pauseScene.IsPaused())
         {
@@ -36,11 +47,16 @@ public class MenuSet : MonoBehaviour
 
     public void QuitGame()
     {
-        AudioManager.Instance.ClickAudio();
-        Application.Quit();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.ClickAudio();
+        }
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit(); 
+#endif
     }
-
-
-
 
 }
