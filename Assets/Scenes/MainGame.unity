@@ -661,6 +661,7 @@ GameObject:
   - component: {fileID: 114872444}
   - component: {fileID: 114872443}
   - component: {fileID: 114872446}
+  - component: {fileID: 114872447}
   m_Layer: 0
   m_Name: Music
   m_TagString: Untagged
@@ -722,7 +723,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 20
+  m_SortingOrder: 30
   m_Sprite: {fileID: 556052397, guid: 6e1c7a9a34b691b4c9cdcd1cf0875465, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -756,7 +757,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 114872442}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -794,6 +795,36 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 2.5700097, y: 2.59}
   m_EdgeRadius: 0
+--- !u!114 &114872447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114872442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 470459fd82e8eac48a0add2be022139a, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 114872446}
+          m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+          m_MethodName: set_enabled
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
 --- !u!1 &131541477
 GameObject:
   m_ObjectHideFlags: 0
@@ -1108,6 +1139,7 @@ GameObject:
   - component: {fileID: 221322329}
   - component: {fileID: 221322332}
   - component: {fileID: 221322331}
+  - component: {fileID: 221322333}
   m_Layer: 0
   m_Name: Pause
   m_TagString: Untagged
@@ -1155,7 +1187,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 20
+  m_SortingOrder: 30
   m_Sprite: {fileID: 763467252, guid: 6e1c7a9a34b691b4c9cdcd1cf0875465, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1189,7 +1221,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 221322328}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -1241,6 +1273,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panelPause: {fileID: 803006282}
   spritePause: {fileID: 848173755, guid: 6e1c7a9a34b691b4c9cdcd1cf0875465, type: 3}
+--- !u!114 &221322333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221322328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: fc5103102af2e574fbd6b1290799e15d, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 221322331}
+          m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+          m_MethodName: set_enabled
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
 --- !u!1 &231722244
 GameObject:
   m_ObjectHideFlags: 0
@@ -4964,6 +5026,12 @@ PlayableDirector:
     value: {fileID: 1755903108}
   - key: {fileID: -6068092974724119136, guid: 54a7a554532739f44b0918c74c6fb06b, type: 2}
     value: {fileID: 60406821}
+  - key: {fileID: 7218302938034843303, guid: 54a7a554532739f44b0918c74c6fb06b, type: 2}
+    value: {fileID: 114872447}
+  - key: {fileID: 3035074757776621829, guid: 54a7a554532739f44b0918c74c6fb06b, type: 2}
+    value: {fileID: 1290821750}
+  - key: {fileID: -4722889588649069549, guid: 54a7a554532739f44b0918c74c6fb06b, type: 2}
+    value: {fileID: 221322333}
   m_ExposedReferences:
     m_References:
     - e499d4ad3c1dbde41afc55b5e4c21e5c: {fileID: 1972123269}
@@ -6880,6 +6948,7 @@ GameObject:
   - component: {fileID: 1290821747}
   - component: {fileID: 1290821746}
   - component: {fileID: 1290821749}
+  - component: {fileID: 1290821750}
   m_Layer: 0
   m_Name: Sound
   m_TagString: Untagged
@@ -6941,7 +7010,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 20
+  m_SortingOrder: 30
   m_Sprite: {fileID: 981463128, guid: 6e1c7a9a34b691b4c9cdcd1cf0875465, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -6975,7 +7044,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1290821745}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -7013,6 +7082,36 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 2.5800097, y: 2.58}
   m_EdgeRadius: 0
+--- !u!114 &1290821750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290821745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: cd3d957ecf93256408528aa138c7fa2d, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1290821749}
+          m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+          m_MethodName: set_enabled
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
 --- !u!1 &1322275087
 GameObject:
   m_ObjectHideFlags: 0
@@ -8344,7 +8443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3d800fccf2f43a4590b2ad5cb7c115c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLeft: 1
+  timeLeft: 60
   bonusTime: 10
   scoreToBonus: 180
   timePerDifficultyIncrease: 15
