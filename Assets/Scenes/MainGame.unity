@@ -7795,13 +7795,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3d800fccf2f43a4590b2ad5cb7c115c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLeft: 1
+  timeLeft: 60
   bonusTime: 10
   scoreToBonus: 180
   timePerDifficultyIncrease: 15
   timerText: {fileID: 1755903111}
   scoreText: {fileID: 1278128421}
   panelGameOver: {fileID: 1169420019}
+  gameOverScoreText: {fileID: 288373259}
+  gameOverHighScoreText: {fileID: 2087439022}
   targetSpawner: {fileID: 60406822}
   gunShoot: {fileID: 905543682}
   gunMovement: {fileID: 905543679}

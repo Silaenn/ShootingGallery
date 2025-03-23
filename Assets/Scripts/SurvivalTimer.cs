@@ -163,12 +163,12 @@ public class SurvivalTimer : MonoBehaviour
 
         if (gameOverScoreText != null)
         {
-            gameOverScoreText.text = "ScoreL " + score;
+            gameOverScoreText.text = "Score : " + score;
         }
 
         if (gameOverHighScoreText != null)
         {
-            gameOverHighScoreText.text = "HighScoreL " + highScore;
+            gameOverHighScoreText.text = "HighScore : " + highScore;
         }
 
         if (score == highScore)
