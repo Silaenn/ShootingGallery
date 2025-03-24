@@ -15,6 +15,7 @@ public class MovingTarget : MonoBehaviour
     [SerializeField] float destroyDistance = 18f;
     [SerializeField] bool startFacingRight = true;
 
+
     Vector2 startPosition;
     SpriteRenderer spriteRenderer;
     float direction;
@@ -91,5 +92,4 @@ public class MovingTarget : MonoBehaviour
             spriteRenderer.flipX = (direction == -1);
         }
     }
-
 }

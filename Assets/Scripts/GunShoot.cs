@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using TMPro;
 
 public class GunShoot : MonoBehaviour
 {
@@ -16,6 +17,12 @@ public class GunShoot : MonoBehaviour
     [SerializeField] float bulletMarkLifetime = 3f;
     [SerializeField] float targetDestroyDelay = 3f;
     [SerializeField] LayerMask targetLayerMask;
+
+    [Header("Score Text Settings")]
+    [SerializeField] GameObject scoreTextPrefab;
+    [SerializeField] float textOffsetX = 0.5f;
+    [SerializeField] float textOffsetY = 0.5f;
+    [SerializeField] float textDuration = 6f;
 
     void Start()
     {
@@ -89,7 +96,11 @@ public class GunShoot : MonoBehaviour
         if (target != null)
         {
             SurvivalTimer timer = FindAnyObjectByType<SurvivalTimer>();
-            if (timer != null) timer.AddScore(target.scoreValue);
+            if (timer != null)
+            {
+                timer.AddScore(target.scoreValue);
+                SpawnScoreText(hit.point, target.scoreValue);
+            }
         }
 
         SpriteRenderer targetSpriteRenderer = hit.collider.GetComponent<SpriteRenderer>();
@@ -127,6 +138,61 @@ public class GunShoot : MonoBehaviour
         Vector3 bulletMarkPosition = ray.origin + (ray.direction * 10f);
         GameObject bulletMarkInstance = Instantiate(bulletMarks, bulletMarkPosition, Quaternion.identity);
         Destroy(bulletMarkInstance, bulletMarkLifetime);
+    }
+
+    void SpawnScoreText(Vector2 position, int score)
+    {
+        if (scoreTextPrefab != null)
+        {
+            Vector3 spawnPosition = new Vector3(position.x + textOffsetX, position.y + textOffsetY, 0);
+            GameObject scoreTextObj = Instantiate(scoreTextPrefab, spawnPosition, Quaternion.identity);
+
+            // Atur dan debug Sorting Layer/Order
+            MeshRenderer textRenderer = scoreTextObj.GetComponent<MeshRenderer>();
+            if (textRenderer != null)
+            {
+                textRenderer.sortingLayerName = "Default";
+                textRenderer.sortingOrder = 40;
+                Debug.Log($"Teks Sorting Layer: {textRenderer.sortingLayerName}, Order: {textRenderer.sortingOrder}");
+            }
+            else
+            {
+                Debug.LogError("MeshRenderer tidak ditemukan di scoreTextObj!");
+            }
+
+            TextMeshPro scoreText = scoreTextObj.GetComponent<TextMeshPro>();
+            if (scoreText != null)
+            {
+                scoreText.text = "+" + score;
+                Debug.Log($"Score text spawned at {spawnPosition} with value: +{score}");
+            }
+            else
+            {
+                Debug.LogError("TextMeshPro component tidak ditemukan di scoreTextPrefab!");
+            }
+
+            StartCoroutine(AnimateScoreText(scoreTextObj));
+        }
+        else
+        {
+            Debug.LogWarning("ScoreTextPrefab tidak diatur di Inspector!");
+        }
+    }
+
+    IEnumerator AnimateScoreText(GameObject textObj)
+    {
+        float elapsed = 0f;
+        Vector3 startPos = textObj.transform.position;
+
+        while (elapsed < textDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / textDuration;
+            textObj.transform.position = startPos + new Vector3(0, t, 0);
+            yield return null;
+        }
+
+        Destroy(textObj);
     }
 
 }
