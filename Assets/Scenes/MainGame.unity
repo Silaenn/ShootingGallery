@@ -4985,6 +4985,10 @@ MonoBehaviour:
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 64
+  scoreTextPrefab: {fileID: 7301387233708759671, guid: ad2f5e808dee10a4ca74566b97f8e727, type: 3}
+  textOffsetX: 0.5
+  textOffsetY: 0.5
+  textDuration: 1
 --- !u!1 &933034746
 GameObject:
   m_ObjectHideFlags: 0
