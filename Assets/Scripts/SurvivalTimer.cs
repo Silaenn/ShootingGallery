@@ -8,8 +8,8 @@ public class SurvivalTimer : MonoBehaviour
     [Header("Timer Settings")]
     [SerializeField] float timeLeft = 60f;
     [SerializeField] float bonusTime = 10f;
-    [SerializeField] int scoreToBonus = 180;
-    [SerializeField] float timePerDifficultyIncrease = 15f;
+    [SerializeField] int scoreToBonus = 50;
+    [SerializeField] float timePerDifficultyIncrease = 20f;
 
     [Header("UI Elements")]
     [SerializeField] TextMeshProUGUI timerText;
@@ -26,6 +26,10 @@ public class SurvivalTimer : MonoBehaviour
     [SerializeField] CrosshairController crosshairController;
     [SerializeField] AudioClip soundTimeOut;
     [SerializeField] AudioClip soundGameOver;
+
+    [Header("Score Settings")]
+    [SerializeField] float scoreMultiplier = 1f;
+    [SerializeField] float multiplierIncreaseRate = 0.1f;
 
     int score = 0;
     float difficultyTimer;
@@ -111,7 +115,8 @@ public class SurvivalTimer : MonoBehaviour
     {
         if (!isGameOver)
         {
-            score += points;
+            float adjustedPoints = points * scoreMultiplier;
+            score += Mathf.RoundToInt(adjustedPoints);
             if (score >= scoreToBonus)
             {
                 AddBonusTime();
@@ -129,6 +134,7 @@ public class SurvivalTimer : MonoBehaviour
     void IncreaseDifficulty()
     {
         difficultyLevel++;
+        scoreMultiplier += multiplierIncreaseRate;
         if (targetSpawner != null)
         {
             targetSpawner.IncreaseDifficulty();
@@ -206,5 +212,10 @@ public class SurvivalTimer : MonoBehaviour
     public bool IsGameOver()
     {
         return isGameOver;
+    }
+
+    public int GetDifficultyLevel()
+    {
+        return difficultyLevel;
     }
 }

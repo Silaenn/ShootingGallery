@@ -102,13 +102,6 @@ public class TargetSpawner : MonoBehaviour
             GameObject randomPrefab = selectedPrefabs[UnityEngine.Random.Range(0, selectedPrefabs.Length)];
             Vector3 spawnPosition = new Vector3(UnityEngine.Random.Range(spawnRangeX.x, spawnRangeX.y), selectedY, 0);
             GameObject newTarget = Instantiate(randomPrefab, spawnPosition, Quaternion.identity);
-
-            MovingTarget movingTarget = newTarget.GetComponent<MovingTarget>();
-            if (movingTarget != null)
-            {
-                float speedMultiplier = UnityEngine.Random.Range(0.8f, 1.2f);
-                movingTarget.moveSpeed *= speedMultiplier;
-            }
         }
     }
 

@@ -8444,10 +8444,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3d800fccf2f43a4590b2ad5cb7c115c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLeft: 6
+  timeLeft: 60
   bonusTime: 10
-  scoreToBonus: 180
-  timePerDifficultyIncrease: 15
+  scoreToBonus: 50
+  timePerDifficultyIncrease: 20
   timerText: {fileID: 1755903111}
   scoreText: {fileID: 1278128421}
   panelGameOver: {fileID: 1169420019}
@@ -8459,6 +8459,8 @@ MonoBehaviour:
   crosshairController: {fileID: 76930072}
   soundTimeOut: {fileID: 8300000, guid: bf2854a09aafee748a7a581d08da2c4f, type: 3}
   soundGameOver: {fileID: 8300000, guid: 430286f77c9e3d442a074081b870276b, type: 3}
+  scoreMultiplier: 1
+  multiplierIncreaseRate: 0.1
 --- !u!114 &1755903111
 MonoBehaviour:
   m_ObjectHideFlags: 0

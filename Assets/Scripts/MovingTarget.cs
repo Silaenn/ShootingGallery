@@ -5,8 +5,11 @@ using UnityEngine;
 public class MovingTarget : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 2f;
+    public float baseSpeed = 1.5f;
     public int scoreValue = 20;
+    [SerializeField] float speedIncreasePerDifficulty = 0.2f;
+    [SerializeField] float maxSpeed = 3.5f;
+
     [SerializeField] float amplitude = 0.6f;
     [SerializeField] float frequency = 2f;
     [SerializeField] float destroyDistance = 18f;
@@ -15,6 +18,8 @@ public class MovingTarget : MonoBehaviour
     Vector2 startPosition;
     SpriteRenderer spriteRenderer;
     float direction;
+    SurvivalTimer survivalTimer;
+    float moveSpeed;
 
     void Start()
     {
@@ -27,14 +32,35 @@ public class MovingTarget : MonoBehaviour
             return;
         }
 
+        survivalTimer = FindAnyObjectByType<SurvivalTimer>();
+        if (survivalTimer == null)
+        {
+            Debug.LogError("SurvivalTimer tidak ditemukan di scene");
+        }
+
         direction = startFacingRight ? 1 : -1;
         FlipSprite();
+
+        UpdateMoveSpeed();
     }
 
     void Update()
     {
+        UpdateMoveSpeed();
         MoveHorizontal();
         WaveMovement();
+    }
+
+    void UpdateMoveSpeed()
+    {
+        if (survivalTimer != null)
+        {
+            moveSpeed = Mathf.Min(baseSpeed + (speedIncreasePerDifficulty * (survivalTimer.GetDifficultyLevel() - 1)), maxSpeed);
+        }
+        else
+        {
+            moveSpeed = baseSpeed;
+        }
     }
 
     void WaveMovement()
