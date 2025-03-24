@@ -53,7 +53,6 @@ public class GunShoot : MonoBehaviour
 
         foreach (RaycastResult result in results)
         {
-            Debug.Log("UI Raycast hit: " + result.gameObject.name);
             if (result.gameObject.GetComponent<Button>() != null)
             {
                 Debug.Log("Klik pada tombol UI terdeteksi, tidak menembak");
