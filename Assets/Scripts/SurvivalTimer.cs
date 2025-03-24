@@ -24,12 +24,17 @@ public class SurvivalTimer : MonoBehaviour
     [SerializeField] GunShoot gunShoot;
     [SerializeField] GunMovement gunMovement;
     [SerializeField] CrosshairController crosshairController;
+    [SerializeField] AudioClip soundTimeOut;
+    [SerializeField] AudioClip soundGameOver;
+
     int score = 0;
     float difficultyTimer;
     int difficultyLevel = 1;
     bool isGameOver = false;
     float lastTimeDIsplayed = -1f;
     const string HIGH_SCORE_KEY = "HighScore";
+    AudioSource audioSource;
+    bool hasPlayedTimeOutSound = false;
 
     void Start()
     {
@@ -47,6 +52,7 @@ public class SurvivalTimer : MonoBehaviour
         if (gunShoot == null) gunShoot = FindObjectOfType<GunShoot>();
         if (gunMovement == null) gunMovement = FindObjectOfType<GunMovement>();
         if (crosshairController == null) crosshairController = FindObjectOfType<CrosshairController>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
         UpdateUI();
         panelGameOver.SetActive(false);
@@ -79,7 +85,21 @@ public class SurvivalTimer : MonoBehaviour
         if (timerText != null && Mathf.Abs(timeLeft - lastTimeDIsplayed) > 0.1f)
         {
             timerText.text = Mathf.Max(0, timeLeft).ToString("F0");
-            timerText.color = timeLeft < 5f ? Color.red : Color.white;
+            if (timeLeft < 5f)
+            {
+                timerText.color = Color.red;
+
+                if (!hasPlayedTimeOutSound && audioSource != null && audioSource != null)
+                {
+                    audioSource.PlayOneShot(soundTimeOut);
+                    hasPlayedTimeOutSound = true;
+                }
+            }
+            else
+            {
+                timerText.color = Color.white;
+                hasPlayedTimeOutSound = false;
+            }
             lastTimeDIsplayed = timeLeft;
         }
         if (scoreText != null)
@@ -120,6 +140,12 @@ public class SurvivalTimer : MonoBehaviour
         if (isGameOver) return;
 
         isGameOver = true;
+
+        if (audioSource != null && soundGameOver != null)
+        {
+            audioSource.Stop();
+            audioSource.PlayOneShot(soundGameOver);
+        }
 
         if (AudioManager.Instance != null)
         {
