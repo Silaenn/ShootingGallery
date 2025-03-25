@@ -8368,7 +8368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeLeft: 60
-  bonusTime: 10
+  bonusTime: 50
   scoreToBonus: 10
   timePerDifficultyIncrease: 20
   timerText: {fileID: 1755903111}

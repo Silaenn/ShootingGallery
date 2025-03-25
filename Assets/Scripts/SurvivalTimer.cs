@@ -134,7 +134,7 @@ public class SurvivalTimer : MonoBehaviour
     void AddBonusTime()
     {
         timeLeft += bonusTime;
-        scoreToBonus += 10;
+        scoreToBonus += 180;
         SpawnBonusTimeText();
     }
 
