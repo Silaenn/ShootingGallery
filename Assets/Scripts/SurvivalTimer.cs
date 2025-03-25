@@ -31,6 +31,12 @@ public class SurvivalTimer : MonoBehaviour
     [SerializeField] float scoreMultiplier = 1f;
     [SerializeField] float multiplierIncreaseRate = 0.1f;
 
+    [Header("Bonus Time Text Settings")]
+    [SerializeField] GameObject bonusTimeTextPrefab;
+    [SerializeField] float textOffsetX = 0f;
+    [SerializeField] float textOffsetY = 2f;
+    [SerializeField] float textDuration = 1f;
+
     int score = 0;
     float difficultyTimer;
     int difficultyLevel = 1;
@@ -129,8 +135,62 @@ public class SurvivalTimer : MonoBehaviour
     {
         timeLeft += bonusTime;
         scoreToBonus += 180;
+        SpawnBonusTimeText();
     }
 
+    void SpawnBonusTimeText()
+    {
+        if (bonusTimeTextPrefab != null && timerText != null)
+        {
+            GameObject bonusTextObj = Instantiate(bonusTimeTextPrefab, timerText.transform.parent);
+
+            RectTransform bonusRect = bonusTextObj.GetComponent<RectTransform>();
+            RectTransform timerRect = timerText.GetComponent<RectTransform>();
+            if (bonusRect != null && timerRect != null)
+            {
+                bonusRect.anchoredPosition = timerRect.anchoredPosition + new Vector2(textOffsetX, textOffsetY);
+                bonusRect.anchorMin = timerRect.anchorMin;
+                bonusRect.anchorMax = timerRect.anchorMax;
+                bonusRect.pivot = new Vector2(0.5f, 0.5f);
+            }
+
+            TextMeshProUGUI bonusText = bonusTextObj.GetComponent<TextMeshProUGUI>();
+            if (bonusText != null)
+            {
+                bonusText.text = "+" + bonusTime.ToString("F0");
+                Debug.Log($"Bonus time text spawned at {bonusRect.anchoredPosition} with value: +{bonusTime}");
+            }
+            else
+            {
+                Debug.LogError("TextMeshPro component tidak ditemukan di bonusTimeTextPrefab!");
+            }
+
+            StartCoroutine(AnimateBonusTimeText(bonusTextObj));
+        }
+        else
+        {
+            Debug.LogWarning("bonusTimeText Prefab atau timerText tidak diatur di Inspector");
+        }
+    }
+
+    IEnumerator AnimateBonusTimeText(GameObject textObj)
+    {
+        float elapsed = 0f;
+        RectTransform rectTransform = textObj.GetComponent<RectTransform>();
+        Vector2 startPos = rectTransform.anchoredPosition;
+        TextMeshProUGUI bonusText = textObj.GetComponent<TextMeshProUGUI>();
+
+        while (elapsed < textDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / textDuration;
+            rectTransform.anchoredPosition = startPos + new Vector2(0, t * 50f);
+            if (bonusText != null) bonusText.alpha = 1 - t;
+            yield return null;
+        }
+
+        Destroy(textObj);
+    }
     void IncreaseDifficulty()
     {
         difficultyLevel++;
