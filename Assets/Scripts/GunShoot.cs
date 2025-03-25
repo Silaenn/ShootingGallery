@@ -147,13 +147,11 @@ public class GunShoot : MonoBehaviour
             Vector3 spawnPosition = new Vector3(position.x + textOffsetX, position.y + textOffsetY, 0);
             GameObject scoreTextObj = Instantiate(scoreTextPrefab, spawnPosition, Quaternion.identity);
 
-            // Atur dan debug Sorting Layer/Order
             MeshRenderer textRenderer = scoreTextObj.GetComponent<MeshRenderer>();
             if (textRenderer != null)
             {
                 textRenderer.sortingLayerName = "Default";
                 textRenderer.sortingOrder = 40;
-                Debug.Log($"Teks Sorting Layer: {textRenderer.sortingLayerName}, Order: {textRenderer.sortingOrder}");
             }
             else
             {
@@ -164,7 +162,6 @@ public class GunShoot : MonoBehaviour
             if (scoreText != null)
             {
                 scoreText.text = "+" + score;
-                Debug.Log($"Score text spawned at {spawnPosition} with value: +{score}");
             }
             else
             {
