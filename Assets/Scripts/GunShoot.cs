@@ -70,7 +70,7 @@ public class GunShoot : MonoBehaviour
         return false;
     }
 
-    void Shoot()
+    public void Shoot()
     {
         if (pauseScene != null && pauseScene.IsPaused()) return;
         if (!ammoManager.UseAmmo()) return;
