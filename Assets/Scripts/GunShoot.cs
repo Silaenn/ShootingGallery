@@ -24,6 +24,8 @@ public class GunShoot : MonoBehaviour
     [SerializeField] float textOffsetY = 0.5f;
     [SerializeField] float textDuration = 6f;
 
+    public bool HasShot { get; set; } = false;
+
     void Start()
     {
         if (mainCamera == null) mainCamera = Camera.main;
@@ -46,7 +48,7 @@ public class GunShoot : MonoBehaviour
         }
     }
 
-    bool IsPointerOverUI()
+    public bool IsPointerOverUI()
     {
         if (EventSystem.current == null)
         {
@@ -75,7 +77,8 @@ public class GunShoot : MonoBehaviour
         if (pauseScene != null && pauseScene.IsPaused()) return;
         if (!ammoManager.UseAmmo()) return;
 
-        AudioManager.Instance.ShootAudio();
+        HasShot = true;
+        // AudioManager.Instance.ShootAudio();
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, targetLayerMask);
@@ -88,6 +91,11 @@ public class GunShoot : MonoBehaviour
         {
             SpawnBulletMark(ray);
         }
+    }
+
+    public void ResetShoot()
+    {
+        HasShot = false;
     }
 
     void HandleTargetHit(RaycastHit2D hit)

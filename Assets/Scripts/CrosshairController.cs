@@ -12,7 +12,7 @@ public class CrosshairController : MonoBehaviour
             pauseScene = FindObjectOfType<PauseScene>();
             if (pauseScene == null)
             {
-                Debug.LogError("PauseScene tidak ditemukan di scene!");
+                Debug.LogWarning("PauseScene tidak ditemukan di scene!");
             }
         }
 
@@ -27,7 +27,7 @@ public class CrosshairController : MonoBehaviour
 
     void Update()
     {
-        if (pauseScene.IsPaused())
+        if (pauseScene != null && pauseScene.IsPaused())
         {
             Cursor.visible = true;
             return;
