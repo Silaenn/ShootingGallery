@@ -35,6 +35,8 @@ public class TutorialManager : MonoBehaviour
     Transform originalReloadParent;
     Vector2 originalReloadPosition;
     int originalReloadSiblingIndex;
+    Transform originalInstructionParent;
+    Canvas mainCanvas;
 
     GameObject[] targets = new GameObject[4];
     GameObject[] worldHighlights;
@@ -54,6 +56,9 @@ public class TutorialManager : MonoBehaviour
         target2.SetActive(false);
         endText.gameObject.SetActive(false);
         crossHair.SetActive(false);
+
+        originalInstructionParent = instructionText.transform.parent;
+        mainCanvas = overlayPanel.GetComponentInParent<Canvas>();
 
         SpriteRenderer bgSr = bacgroundTarget.GetComponent<SpriteRenderer>();
         if (bgSr != null) bgSr.sortingOrder = 211;
@@ -168,6 +173,7 @@ public class TutorialManager : MonoBehaviour
             return true;
         });
         Time.timeScale = 1f;
+        instructionText.transform.SetParent(originalInstructionParent, false);
 
         overlayPanel.SetActive(true);
         bacgroundTarget.SetActive(false);
@@ -180,10 +186,11 @@ public class TutorialManager : MonoBehaviour
         target2.SetActive(true);
         HighlightElement(target2, "Tembak target ini!");
         SpriteRenderer target2SR = target2.GetComponent<SpriteRenderer>();
-        target2SR.sortingOrder = 31;
+        target2SR.sortingOrder = 212;
         Time.timeScale = 0.5f;
         yield return new WaitUntil(() => GameObject.FindWithTag("Target") == null);
         Time.timeScale = 1f;
+        ResetElement(null);
 
         overlayPanel.SetActive(false);
         endText.gameObject.SetActive(true);
@@ -230,19 +237,23 @@ public class TutorialManager : MonoBehaviour
                 handCursor.anchoredPosition = screenPos + new Vector2(textSize.x / 2 + 300f, 0);
 
                 instructionText.rectTransform.pivot = (element == timerText.gameObject) ? new Vector2(0.5f, -0.15f) : (element == scoreText.gameObject) ? new Vector2(-0.52f, 0f) :
-                 (element == reloadButton.gameObject) ? new Vector2(-0.159999996f, 4.44999981f) :
+                 (element == reloadButton.gameObject) ? new Vector2(-3.1500001f, 7.11999989f) :
                  new Vector2(0.5f, 0.5f);
 
                 Debug.Log($"TMP Element: {element.name}, Preferred Size: ({tmp.preferredWidth}, {tmp.preferredHeight}), Highlight Size: {highlightRect.sizeDelta}, Pos: {highlightRect.anchoredPosition}");
             }
             else
             {
-                highlightRect.sizeDelta = new Vector2(elementRect.sizeDelta.x - 20f, elementRect.sizeDelta.y);
+                highlightRect.sizeDelta = new Vector2(elementRect.sizeDelta.x - 60f, elementRect.sizeDelta.y);
                 highlightRect.anchorMin = elementRect.anchorMin;
                 highlightRect.anchorMax = elementRect.anchorMax;
                 highlightRect.pivot = elementRect.pivot;
                 highlightRect.anchoredPosition = screenPos;
                 handCursor.anchoredPosition = screenPos + new Vector2(elementRect.sizeDelta.x / 2 + 60f, -elementRect.sizeDelta.y / 2);
+
+                instructionText.rectTransform.anchorMin = elementRect.anchorMin;
+                instructionText.rectTransform.anchorMax = elementRect.anchorMax;
+                instructionText.rectTransform.anchoredPosition = screenPos + new Vector2(0, elementRect.sizeDelta.y + 20f);
             }
 
             for (int i = 0; i < worldHighlights.Length; i++)
@@ -250,10 +261,16 @@ public class TutorialManager : MonoBehaviour
                 if (worldHighlights[i] != null) worldHighlights[i].SetActive(false);
                 if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
             }
+
+            highlightBox.SetActive(true);
+            handCursor.gameObject.SetActive(true);
+            instructionText.gameObject.SetActive(true);
         }
         else
         {
             currentTrackedTarget = element;
+
+            instructionText.transform.SetParent(mainCanvas.transform, false);
 
             if (element == targets[0])
             {
@@ -279,7 +296,7 @@ public class TutorialManager : MonoBehaviour
                             SpriteRenderer sr = worldHandCursor[i].AddComponent<SpriteRenderer>();
                             sr.sprite = handCursorSprite;
                             sr.sortingLayerName = "Default";
-                            sr.sortingOrder = 213; // Di atas worldHighlight
+                            sr.sortingOrder = 213;
                             worldHandCursor[i].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
                         }
                         worldHandCursor[i].SetActive(true);
@@ -317,10 +334,18 @@ public class TutorialManager : MonoBehaviour
                 highlightBox.SetActive(false);
                 handCursor.gameObject.SetActive(false);
             }
+
+            highlightBox.gameObject.SetActive(true);
+            handCursor.gameObject.SetActive(true);
+            instructionText.gameObject.SetActive(true);
+
+            instructionText.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            instructionText.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            instructionText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            instructionText.rectTransform.anchoredPosition = new Vector2(0, 300f);
+            instructionText.alignment = TextAlignmentOptions.Center;
+            instructionText.fontSize = 80;
         }
-        highlightBox.gameObject.SetActive(true);
-        handCursor.gameObject.SetActive(true);
-        instructionText.gameObject.SetActive(true);
         instructionText.text = message;
     }
 
@@ -338,7 +363,7 @@ public class TutorialManager : MonoBehaviour
 
     void ResetElement(GameObject element)
     {
-        RectTransform elementRect = element.GetComponent<RectTransform>();
+        RectTransform elementRect = (element != null) ? element.GetComponent<RectTransform>() : null;
         if (elementRect == null)
         {
             currentTrackedTarget = null;
@@ -348,6 +373,8 @@ public class TutorialManager : MonoBehaviour
                 if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
             }
 
+            instructionText.transform.SetParent(originalInstructionParent, false);
+            instructionText.gameObject.SetActive(false);
             handCursor.SetParent(overlayPanel.GetComponent<RectTransform>(), false);
         }
         else
@@ -375,5 +402,6 @@ public class TutorialManager : MonoBehaviour
 
         handCursor.gameObject.SetActive(false);
         instructionText.gameObject.SetActive(false);
+        highlightBox.SetActive(false);
     }
 }
