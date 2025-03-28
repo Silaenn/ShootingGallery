@@ -20,6 +20,9 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] GunShoot gunShoot;
     [SerializeField] GunMovement gunMovement;
     [SerializeField] AmmoManager ammoManager;
+    [SerializeField] Sprite highlightSprite;
+    [SerializeField] Sprite handCursorSprite;
+    [SerializeField] GameObject bacgroundTarget;
 
     [SerializeField] float stepDuration = 4f;
     RectTransform highlightRect;
@@ -34,6 +37,9 @@ public class TutorialManager : MonoBehaviour
     int originalReloadSiblingIndex;
 
     GameObject[] targets = new GameObject[4];
+    GameObject[] worldHighlights;
+    GameObject[] worldHandCursor;
+    GameObject currentTrackedTarget;
 
     void Start()
     {
@@ -48,6 +54,13 @@ public class TutorialManager : MonoBehaviour
         target2.SetActive(false);
         endText.gameObject.SetActive(false);
         crossHair.SetActive(false);
+
+        SpriteRenderer bgSr = bacgroundTarget.GetComponent<SpriteRenderer>();
+        if (bgSr != null) bgSr.sortingOrder = 211;
+        bacgroundTarget.SetActive(false);
+
+        worldHighlights = new GameObject[4];
+        worldHandCursor = new GameObject[4];
 
         if (overlayPanel != null)
         {
@@ -81,6 +94,32 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(RunTutorial());
     }
 
+    void Update()
+    {
+        for (int i = 0; i < targets.Length; i++)
+        {
+            if (targets[i] != null && worldHighlights[i] != null && worldHighlights[i].activeInHierarchy)
+            {
+                UpdateWorldHighlightPosition(targets[i], worldHighlights[i]);
+
+                if (worldHandCursor[i] != null && worldHandCursor[i].activeInHierarchy)
+                {
+                    UpdateWorldHandCursorPosition(targets[i], worldHandCursor[i]);
+                }
+            }
+        }
+
+        if (currentTrackedTarget == target2 && target2 != null && worldHighlights[0] != null && worldHighlights[0].activeInHierarchy)
+        {
+            UpdateWorldHighlightPosition(target2, worldHighlights[0]);
+            if (worldHandCursor[0] != null && worldHandCursor[0].activeInHierarchy)
+            {
+                UpdateWorldHandCursorPosition(target2, worldHandCursor[0]);
+            }
+        }
+
+    }
+
     System.Collections.IEnumerator RunTutorial()
     {
         HighlightElement(timerText.gameObject, "Ini waktu permainan!", true);
@@ -90,6 +129,7 @@ public class TutorialManager : MonoBehaviour
         HighlightElement(scoreText.gameObject, "Ini skor kamu!", true);
         yield return new WaitForSecondsRealtime(stepDuration);
         ResetElement(scoreText.gameObject);
+
 
         overlayPanel.SetActive(false);
         if (gunShoot != null)
@@ -102,14 +142,19 @@ public class TutorialManager : MonoBehaviour
         crossHair.GetComponent<CrosshairController>().enabled = true;
 
 
+        bacgroundTarget.SetActive(true);
         for (int i = 0; i < 4; i++)
         {
             if (target1 != null)
             {
                 targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
                 targets[i].SetActive(true);
+                SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
+                targetSr.sortingOrder = 212;
+
             }
         }
+        Time.timeScale = 0.5f;
         HighlightElement(targets[0], "Tembak target");
         yield return new WaitUntil(() =>
         {
@@ -122,20 +167,27 @@ public class TutorialManager : MonoBehaviour
             }
             return true;
         });
+        Time.timeScale = 1f;
 
         overlayPanel.SetActive(true);
+        bacgroundTarget.SetActive(false);
         HighlightElement(reloadButton.gameObject, "Ammo habis? Klik Reload!", true);
         yield return new WaitUntil(() => ammoManager.GetRemainingAmmo() == 4);
         ResetElement(reloadButton.gameObject);
 
         overlayPanel.SetActive(false);
+        bacgroundTarget.SetActive(true);
         target2.SetActive(true);
         HighlightElement(target2, "Tembak target ini!");
+        SpriteRenderer target2SR = target2.GetComponent<SpriteRenderer>();
+        target2SR.sortingOrder = 31;
+        Time.timeScale = 0.5f;
         yield return new WaitUntil(() => GameObject.FindWithTag("Target") == null);
+        Time.timeScale = 1f;
 
-        overlayPanel.SetActive(true);
+        overlayPanel.SetActive(false);
         endText.gameObject.SetActive(true);
-        yield return new WaitForSecondsRealtime(2f);
+        yield return new WaitForSecondsRealtime(5f);
         SceneManager.LoadScene("MainGame");
     }
 
@@ -169,9 +221,17 @@ public class TutorialManager : MonoBehaviour
                 highlightRect.anchorMin = elementRect.anchorMin;
                 highlightRect.anchorMax = elementRect.anchorMax;
                 highlightRect.pivot = elementRect.pivot;
-
                 highlightRect.anchoredPosition = screenPos;
-                handCursor.anchoredPosition = screenPos + new Vector2(textSize.x / 2 + 60f, -textSize.y / 2);
+
+                handCursor.pivot = (element == timerText.gameObject) ? new Vector2(-1.03f, 1.51f) :
+                   (element == scoreText.gameObject) ? new Vector2(-2.14f, 0.77f) :
+                   (element == reloadButton.gameObject) ? new Vector2(-2.3599999f, 1.50999999f) : new Vector2(0.5f, 0.5f);
+
+                handCursor.anchoredPosition = screenPos + new Vector2(textSize.x / 2 + 300f, 0);
+
+                instructionText.rectTransform.pivot = (element == timerText.gameObject) ? new Vector2(0.5f, -0.15f) : (element == scoreText.gameObject) ? new Vector2(-0.52f, 0f) :
+                 (element == reloadButton.gameObject) ? new Vector2(-0.159999996f, 4.44999981f) :
+                 new Vector2(0.5f, 0.5f);
 
                 Debug.Log($"TMP Element: {element.name}, Preferred Size: ({tmp.preferredWidth}, {tmp.preferredHeight}), Highlight Size: {highlightRect.sizeDelta}, Pos: {highlightRect.anchoredPosition}");
             }
@@ -182,61 +242,137 @@ public class TutorialManager : MonoBehaviour
                 highlightRect.anchorMax = elementRect.anchorMax;
                 highlightRect.pivot = elementRect.pivot;
                 highlightRect.anchoredPosition = screenPos;
-                handCursor.anchoredPosition = screenPos + new Vector2(elementRect.sizeDelta.x / 2 + 30f, -elementRect.sizeDelta.y / 2);
+                handCursor.anchoredPosition = screenPos + new Vector2(elementRect.sizeDelta.x / 2 + 60f, -elementRect.sizeDelta.y / 2);
+            }
 
-                Debug.Log($"UI Element: {element.name}, Size: {elementRect.sizeDelta}, Highlight Size: {highlightRect.sizeDelta}, Pos: {highlightRect.anchoredPosition}");
+            for (int i = 0; i < worldHighlights.Length; i++)
+            {
+                if (worldHighlights[i] != null) worldHighlights[i].SetActive(false);
+                if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
             }
         }
         else
         {
-            Vector3 worldPos = element.transform.position;
-            Vector3 screenPos3D = Camera.main.WorldToScreenPoint(worldPos);
-            RectTransform canvasRect = overlayPanel.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
-            Vector2 viewportPos = new Vector2(screenPos3D.x / Screen.width, screenPos3D.y / Screen.height);
-            screenPos = new Vector2(viewportPos.x * canvasRect.sizeDelta.x - canvasRect.sizeDelta.x / 2,
-                                    viewportPos.y * canvasRect.sizeDelta.y - canvasRect.sizeDelta.y / 2);
+            currentTrackedTarget = element;
 
-            highlightRect.sizeDelta = new Vector2(150f, 150f); // Ukuran tetap untuk target
-            highlightRect.anchorMin = new Vector2(0.5f, 0.5f); // Anchor tengah
-            highlightRect.anchorMax = new Vector2(0.5f, 0.5f);
-            highlightRect.pivot = new Vector2(0.5f, 0.5f);    // Pivot tengah
-            highlightRect.anchoredPosition = screenPos;
-            handCursor.anchoredPosition = screenPos + new Vector2(80f, 0);
+            if (element == targets[0])
+            {
+                for (int i = 0; i < targets.Length; i++)
+                {
+                    if (targets[i] != null)
+                    {
+                        if (worldHighlights[i] == null)
+                        {
+                            worldHighlights[i] = new GameObject("WorldHighlight_" + i);
+                            SpriteRenderer sr = worldHighlights[i].AddComponent<SpriteRenderer>();
+                            sr.sprite = highlightSprite;
+                            sr.sortingLayerName = "Default";
+                            sr.sortingOrder = 211;
+                            worldHighlights[i].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
+                        }
+                        worldHighlights[i].SetActive(true);
+                        UpdateWorldHighlightPosition(targets[i], worldHighlights[i]);
 
-            Debug.Log($"World Element: {element.name}, WorldPos: {worldPos}, ScreenPos: {screenPos3D}, CanvasPos: {screenPos}");
+                        if (worldHandCursor[i] == null)
+                        {
+                            worldHandCursor[i] = new GameObject("WorldHandCursor_" + i);
+                            SpriteRenderer sr = worldHandCursor[i].AddComponent<SpriteRenderer>();
+                            sr.sprite = handCursorSprite;
+                            sr.sortingLayerName = "Default";
+                            sr.sortingOrder = 213; // Di atas worldHighlight
+                            worldHandCursor[i].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
+                        }
+                        worldHandCursor[i].SetActive(true);
+                        UpdateWorldHandCursorPosition(targets[i], worldHandCursor[i]);
+                    }
+                }
+            }
+
+            else if (element == target2)
+            {
+                if (worldHighlights[0] == null)
+                {
+                    worldHighlights[0] = new GameObject("WorldHighlight_0");
+                    SpriteRenderer sr = worldHighlights[0].AddComponent<SpriteRenderer>();
+                    sr.sprite = highlightSprite;
+                    sr.sortingLayerName = "Default";
+                    sr.sortingOrder = 211;
+                    worldHighlights[0].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
+                }
+                worldHighlights[0].SetActive(true);
+                UpdateWorldHighlightPosition(target2, worldHighlights[0]);
+
+                if (worldHandCursor[0] == null)
+                {
+                    worldHandCursor[0] = new GameObject("WorldHandCursor_0");
+                    SpriteRenderer sr = worldHandCursor[0].AddComponent<SpriteRenderer>();
+                    sr.sprite = handCursorSprite;
+                    sr.sortingLayerName = "Default";
+                    sr.sortingOrder = 213;
+                    worldHandCursor[0].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
+                }
+                worldHandCursor[0].SetActive(true);
+                UpdateWorldHandCursorPosition(target2, worldHandCursor[0]);
+
+                highlightBox.SetActive(false);
+                handCursor.gameObject.SetActive(false);
+            }
         }
-
-        highlightBox.SetActive(true);
+        highlightBox.gameObject.SetActive(true);
         handCursor.gameObject.SetActive(true);
         instructionText.gameObject.SetActive(true);
         instructionText.text = message;
     }
 
+    void UpdateWorldHighlightPosition(GameObject target, GameObject worldHighlight)
+    {
+        Vector3 targetPos = target.transform.position;
+        worldHighlight.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+    }
+
+    void UpdateWorldHandCursorPosition(GameObject target, GameObject worldHandCursor)
+    {
+        Vector3 targetPos = target.transform.position;
+        worldHandCursor.transform.position = new Vector3(targetPos.x + 0.8f, targetPos.y + -0.5f, targetPos.z);
+    }
+
     void ResetElement(GameObject element)
     {
         RectTransform elementRect = element.GetComponent<RectTransform>();
-        if (elementRect == null) return;
+        if (elementRect == null)
+        {
+            currentTrackedTarget = null;
+            for (int i = 0; i < worldHighlights.Length; i++)
+            {
+                if (worldHighlights[i] != null) worldHighlights[i].SetActive(false);
+                if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
+            }
 
-        if (element == timerText.gameObject && originalTimerParent != null)
-        {
-            element.transform.SetParent(originalTimerParent, false);
-            elementRect.anchoredPosition = originalTimerPosition;
-            element.transform.SetSiblingIndex(originalTimerSiblingIndex);
+            handCursor.SetParent(overlayPanel.GetComponent<RectTransform>(), false);
         }
-        else if (element == scoreText.gameObject && originalScoreParent != null)
+        else
         {
-            element.transform.SetParent(originalScoreParent, false);
-            elementRect.anchoredPosition = originalScorePosition;
-            element.transform.SetSiblingIndex(originalScoreSiblingIndex);
-        }
-        else if (element == reloadButton.gameObject && originalReloadParent != null)
-        {
-            element.transform.SetParent(originalReloadParent, false);
-            elementRect.anchoredPosition = originalReloadPosition;
-            element.transform.SetSiblingIndex(originalReloadSiblingIndex);
+            if (element == timerText.gameObject && originalTimerParent != null)
+            {
+                element.transform.SetParent(originalTimerParent, false);
+                elementRect.anchoredPosition = originalTimerPosition;
+                element.transform.SetSiblingIndex(originalTimerSiblingIndex);
+            }
+            else if (element == scoreText.gameObject && originalScoreParent != null)
+            {
+                element.transform.SetParent(originalScoreParent, false);
+                elementRect.anchoredPosition = originalScorePosition;
+                element.transform.SetSiblingIndex(originalScoreSiblingIndex);
+            }
+            else if (element == reloadButton.gameObject && originalReloadParent != null)
+            {
+                element.transform.SetParent(originalReloadParent, false);
+                elementRect.anchoredPosition = originalReloadPosition;
+                element.transform.SetSiblingIndex(originalReloadSiblingIndex);
+            }
+            highlightBox.SetActive(false);
         }
 
-        highlightBox.SetActive(false);
         handCursor.gameObject.SetActive(false);
         instructionText.gameObject.SetActive(false);
     }
