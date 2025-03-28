@@ -2644,7 +2644,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -852, y: 457}
+  m_AnchoredPosition: {x: -826, y: 483}
   m_SizeDelta: {x: 64.00098, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &529431500
@@ -5052,9 +5052,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 211
+  m_SortingOrder: 30
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.70980394}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.8392157}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -6833,7 +6833,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -614, y: -453}
+  m_AnchoredPosition: {x: -606, y: -427}
   m_SizeDelta: {x: 286.09692, y: 113.137695}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1278128421
@@ -6856,7 +6856,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 0
+  m_text: 'Score : 0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
@@ -6883,8 +6883,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 85.8
-  m_fontSizeBase: 85.8
+  m_fontSize: 76.33
+  m_fontSizeBase: 76.33
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8230,7 +8230,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18, y: 404}
+  m_AnchoredPosition: {x: 4, y: 438}
   m_SizeDelta: {x: 286.0969, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1755903110
@@ -10009,8 +10009,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.2215, y: 0.0902}
-  m_SizeDelta: {x: 1663.6594, y: 1027.2831}
+  m_AnchoredPosition: {x: 0.0101, y: -0.0781}
+  m_SizeDelta: {x: 1776.0259, y: 993.6155}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2035985718
 GameObject:
@@ -10047,7 +10047,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -689, y: 320.99997}
+  m_AnchoredPosition: {x: -666.0001, y: 351}
   m_SizeDelta: {x: 403.8582, y: 95.0334}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2035985721
@@ -11081,6 +11081,10 @@ PrefabInstance:
     - target: {fileID: 3149546313383213205, guid: 89c6b49650b8b9141a1a0fe3af080e49, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486447745002930790, guid: 89c6b49650b8b9141a1a0fe3af080e49, type: 3}
+      propertyPath: m_text
+      value: Tutorial Selesai! Ayo Beraksi!
       objectReference: {fileID: 0}
     - target: {fileID: 5486447745002930790, guid: 89c6b49650b8b9141a1a0fe3af080e49, type: 3}
       propertyPath: m_fontSize

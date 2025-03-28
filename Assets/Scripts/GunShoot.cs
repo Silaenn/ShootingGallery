@@ -78,7 +78,7 @@ public class GunShoot : MonoBehaviour
         if (!ammoManager.UseAmmo()) return;
 
         HasShot = true;
-        // AudioManager.Instance.ShootAudio();
+        AudioManager.Instance.ShootAudio();
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, targetLayerMask);
