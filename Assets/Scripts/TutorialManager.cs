@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -68,7 +69,7 @@ public class TutorialManager : MonoBehaviour
         mainCanvas = overlayPanel.GetComponentInParent<Canvas>();
 
         SpriteRenderer bgSr = bacgroundTarget.GetComponent<SpriteRenderer>();
-        if (bgSr != null) bgSr.sortingOrder = 211;
+        if (bgSr != null) bgSr.sortingOrder = 210;
         bacgroundTarget.SetActive(false);
 
         worldHighlights = new GameObject[4];
@@ -80,6 +81,10 @@ public class TutorialManager : MonoBehaviour
         }
         if (gunShoot != null) gunShoot.enabled = false;
         if (gunMovement != null) gunMovement.enabled = false;
+        if (gunShoot != null)
+        {
+            gunShoot.targetLayerMask = targetLayerMask;
+        }
         crossHair.GetComponent<CrosshairController>().enabled = false;
 
         if (timerText != null)
@@ -131,65 +136,79 @@ public class TutorialManager : MonoBehaviour
 
         if (gunShoot != null && gunShoot.HasShot)
         {
-            if (targetsActive)
+            Debug.Log("Memulai raycast...");
+            try
             {
-                Debug.Log("Targets aktif, memproses targets...");
-
-                if (currentIndex >= targets.Length)
+                Debug.Log($"Raycast selesai. Hit: {(gunShoot.hit.collider != null ? gunShoot.hit.collider.gameObject.name : "null")}");
+                if (gunShoot.hit.collider != null && gunShoot.hit.collider.CompareTag("Target"))
                 {
-                    Debug.Log("Semua targets sudah diproses.");
-                    currentIndex = 0;
-                    return;
+                    if (targetsActive)
+                    {
+                        Debug.Log("Targets aktif, memproses targets...");
+
+                        if (currentIndex >= targets.Length)
+                        {
+                            Debug.Log("Semua targets sudah diproses.");
+                            currentIndex = 0;
+                            return;
+                        }
+
+                        if (targets[currentIndex] != null)
+                        {
+                            SpriteRenderer targetsSr = targets[currentIndex].GetComponent<SpriteRenderer>();
+                            if (targetsSr != null)
+                            {
+                                targetsSr.sortingOrder = 8;
+                            }
+
+                            if (worldHighlights[currentIndex] != null)
+                            {
+                                Debug.Log($"Menghapus WorldHighlight[{currentIndex}]");
+                                Destroy(worldHighlights[currentIndex]);
+                                worldHighlights[currentIndex] = null;
+                            }
+
+                            if (worldHandCursor[currentIndex] != null)
+                            {
+                                Debug.Log($"Menghapus WorldHandCursor[{currentIndex}]");
+                                Destroy(worldHandCursor[currentIndex]);
+                                worldHandCursor[currentIndex] = null;
+                            }
+                        }
+
+                        currentIndex++;
+                    }
+
+                    if (target2Active)
+                    {
+                        SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
+                        if (target2Sr != null)
+                        {
+                            target2Sr.sortingOrder = 8;
+                        }
+                        if (worldHighlights[0] != null)
+                        {
+                            Debug.Log("Menghapus WorldHighlight[0]");
+                            Destroy(worldHighlights[0]);
+                            worldHighlights[0] = null;
+                        }
+                        if (worldHandCursor[0] != null)
+                        {
+                            Debug.Log("Menghapus WorldHandCursor[0]");
+                            Destroy(worldHandCursor[0]);
+                            worldHandCursor[0] = null;
+                        }
+                    }
+
                 }
-
-                if (targets[currentIndex] != null)
-                {
-                    SpriteRenderer targetsSr = targets[currentIndex].GetComponent<SpriteRenderer>();
-                    if (targetsSr != null)
-                    {
-                        targetsSr.sortingOrder = 8;
-                    }
-
-                    if (worldHighlights[currentIndex] != null)
-                    {
-                        Debug.Log($"Menghapus WorldHighlight[{currentIndex}]");
-                        Destroy(worldHighlights[currentIndex]);
-                        worldHighlights[currentIndex] = null;
-                    }
-
-                    if (worldHandCursor[currentIndex] != null)
-                    {
-                        Debug.Log($"Menghapus WorldHandCursor[{currentIndex}]");
-                        Destroy(worldHandCursor[currentIndex]);
-                        worldHandCursor[currentIndex] = null;
-                    }
-                }
-
-                currentIndex++;
             }
-
-            if (target2Active)
+            catch (Exception e)
             {
-                SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
-                if (target2Sr != null)
-                {
-                    target2Sr.sortingOrder = 8;
-                }
-                if (worldHighlights[0] != null)
-                {
-                    Debug.Log("Menghapus WorldHighlight[0]");
-                    Destroy(worldHighlights[0]);
-                    worldHighlights[0] = null;
-                }
-                if (worldHandCursor[0] != null)
-                {
-                    Debug.Log("Menghapus WorldHandCursor[0]");
-                    Destroy(worldHandCursor[0]);
-                    worldHandCursor[0] = null;
-                }
+                Debug.LogError($"Error di raycast: {e.Message}");
             }
             gunShoot.ResetShoot();
         }
+
     }
 
     System.Collections.IEnumerator RunTutorial()
@@ -222,9 +241,9 @@ public class TutorialManager : MonoBehaviour
             {
                 targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
                 targets[i].SetActive(true);
+                targets[i].layer = LayerMask.NameToLayer("Target");
                 SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
                 targetSr.sortingOrder = 212;
-                Debug.Log($"Target[{i}] Tag: {targets[i].tag}, Layer: {LayerMask.LayerToName(targets[i].layer)}");
             }
         }
         Time.timeScale = 0.5f;
@@ -267,7 +286,9 @@ public class TutorialManager : MonoBehaviour
         ResetElement(null);
 
         overlayPanel.SetActive(false);
+
         endText.gameObject.SetActive(true);
+
         yield return new WaitForSecondsRealtime(5f);
         SceneManager.LoadScene("MainGame");
     }
@@ -310,11 +331,9 @@ public class TutorialManager : MonoBehaviour
 
                 handCursor.anchoredPosition = screenPos + new Vector2(textSize.x / 2 + 300f, 0);
 
-                instructionText.rectTransform.pivot = (element == timerText.gameObject) ? new Vector2(0.5f, -0.15f) : (element == scoreText.gameObject) ? new Vector2(-0.52f, 0f) :
+                instructionText.rectTransform.pivot = (element == timerText.gameObject) ? new Vector2(0.5f, -0.15f) : (element == scoreText.gameObject) ? new Vector2(-0.430000007f, -1.23000002f) :
                  (element == reloadButton.gameObject) ? new Vector2(-3.1500001f, 7.11999989f) :
                  new Vector2(0.5f, 0.5f);
-
-                Debug.Log($"TMP Element: {element.name}, Preferred Size: ({tmp.preferredWidth}, {tmp.preferredHeight}), Highlight Size: {highlightRect.sizeDelta}, Pos: {highlightRect.anchoredPosition}");
             }
             else
             {

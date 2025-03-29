@@ -24,6 +24,9 @@ public class GunShoot : MonoBehaviour
     [SerializeField] float textOffsetY = 0.5f;
     [SerializeField] float textDuration = 6f;
 
+    public Ray ray;
+    public RaycastHit2D hit;
+
     public bool HasShot { get; set; } = false;
 
     void Start()
@@ -80,9 +83,9 @@ public class GunShoot : MonoBehaviour
         HasShot = true;
         // AudioManager.Instance.ShootAudio();
 
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, targetLayerMask);
 
+        RayCast(out ray, out hit);
+        Debug.Log($"Shoot: Hit = {(hit.collider != null ? hit.collider.gameObject.name : "null")}");
         if (hit.collider != null && hit.collider.CompareTag("Target"))
         {
             HandleTargetHit(hit);
@@ -91,6 +94,17 @@ public class GunShoot : MonoBehaviour
         {
             SpawnBulletMark(ray);
         }
+    }
+
+    public void RayCast(out Ray ray, out RaycastHit2D hit)
+    {
+        ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity, targetLayerMask);
+
+        if (hit.collider != null)
+            Debug.Log($"Raycast mengenai: {hit.collider.gameObject.name}");
+        else
+            Debug.Log("Raycast tidak mengenai apapun.");
     }
 
     public void ResetShoot()
