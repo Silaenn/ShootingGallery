@@ -32,8 +32,6 @@ public class AmmoManager : MonoBehaviour
         UpdateReloadButton();
     }
 
-
-
     public bool UseAmmo()
     {
         if (currentAmmo > 0)
