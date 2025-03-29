@@ -23,6 +23,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] Sprite highlightSprite;
     [SerializeField] Sprite handCursorSprite;
     [SerializeField] GameObject bacgroundTarget;
+    [SerializeField] LayerMask targetLayerMask;
+
 
     [SerializeField] float stepDuration = 4f;
     RectTransform highlightRect;
@@ -42,6 +44,11 @@ public class TutorialManager : MonoBehaviour
     GameObject[] worldHighlights;
     GameObject[] worldHandCursor;
     GameObject currentTrackedTarget;
+    GameObject target2Instance;
+    bool targetsActive = false;
+    bool target2Active = false;
+    int currentIndex = 0;
+
 
     void Start()
     {
@@ -106,7 +113,6 @@ public class TutorialManager : MonoBehaviour
             if (targets[i] != null && worldHighlights[i] != null && worldHighlights[i].activeInHierarchy)
             {
                 UpdateWorldHighlightPosition(targets[i], worldHighlights[i]);
-
                 if (worldHandCursor[i] != null && worldHandCursor[i].activeInHierarchy)
                 {
                     UpdateWorldHandCursorPosition(targets[i], worldHandCursor[i]);
@@ -114,15 +120,76 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
-        if (currentTrackedTarget == target2 && target2 != null && worldHighlights[0] != null && worldHighlights[0].activeInHierarchy)
+        if (currentTrackedTarget == target2Instance && target2Instance != null && worldHighlights[0] != null && worldHighlights[0].activeInHierarchy)
         {
-            UpdateWorldHighlightPosition(target2, worldHighlights[0]);
+            UpdateWorldHighlightPosition(target2Instance, worldHighlights[0]);
             if (worldHandCursor[0] != null && worldHandCursor[0].activeInHierarchy)
             {
-                UpdateWorldHandCursorPosition(target2, worldHandCursor[0]);
+                UpdateWorldHandCursorPosition(target2Instance, worldHandCursor[0]);
             }
         }
 
+        if (gunShoot != null && gunShoot.HasShot)
+        {
+            if (targetsActive)
+            {
+                Debug.Log("Targets aktif, memproses targets...");
+
+                if (currentIndex >= targets.Length)
+                {
+                    Debug.Log("Semua targets sudah diproses.");
+                    currentIndex = 0;
+                    return;
+                }
+
+                if (targets[currentIndex] != null)
+                {
+                    SpriteRenderer targetsSr = targets[currentIndex].GetComponent<SpriteRenderer>();
+                    if (targetsSr != null)
+                    {
+                        targetsSr.sortingOrder = 8;
+                    }
+
+                    if (worldHighlights[currentIndex] != null)
+                    {
+                        Debug.Log($"Menghapus WorldHighlight[{currentIndex}]");
+                        Destroy(worldHighlights[currentIndex]);
+                        worldHighlights[currentIndex] = null;
+                    }
+
+                    if (worldHandCursor[currentIndex] != null)
+                    {
+                        Debug.Log($"Menghapus WorldHandCursor[{currentIndex}]");
+                        Destroy(worldHandCursor[currentIndex]);
+                        worldHandCursor[currentIndex] = null;
+                    }
+                }
+
+                currentIndex++;
+            }
+
+            if (target2Active)
+            {
+                SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
+                if (target2Sr != null)
+                {
+                    target2Sr.sortingOrder = 8;
+                }
+                if (worldHighlights[0] != null)
+                {
+                    Debug.Log("Menghapus WorldHighlight[0]");
+                    Destroy(worldHighlights[0]);
+                    worldHighlights[0] = null;
+                }
+                if (worldHandCursor[0] != null)
+                {
+                    Debug.Log("Menghapus WorldHandCursor[0]");
+                    Destroy(worldHandCursor[0]);
+                    worldHandCursor[0] = null;
+                }
+            }
+            gunShoot.ResetShoot();
+        }
     }
 
     System.Collections.IEnumerator RunTutorial()
@@ -148,6 +215,7 @@ public class TutorialManager : MonoBehaviour
 
 
         bacgroundTarget.SetActive(true);
+        targetsActive = true;
         for (int i = 0; i < 4; i++)
         {
             if (target1 != null)
@@ -156,7 +224,7 @@ public class TutorialManager : MonoBehaviour
                 targets[i].SetActive(true);
                 SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
                 targetSr.sortingOrder = 212;
-
+                Debug.Log($"Target[{i}] Tag: {targets[i].tag}, Layer: {LayerMask.LayerToName(targets[i].layer)}");
             }
         }
         Time.timeScale = 0.5f;
@@ -172,6 +240,7 @@ public class TutorialManager : MonoBehaviour
             }
             return true;
         });
+        targetsActive = false;
         Time.timeScale = 1f;
         instructionText.transform.SetParent(originalInstructionParent, false);
 
@@ -183,12 +252,17 @@ public class TutorialManager : MonoBehaviour
 
         overlayPanel.SetActive(false);
         bacgroundTarget.SetActive(true);
-        target2.SetActive(true);
-        HighlightElement(target2, "Tembak target ini!");
-        SpriteRenderer target2SR = target2.GetComponent<SpriteRenderer>();
+        target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+        target2Instance.SetActive(true);
+
+        HighlightElement(target2Instance, "Tembak target ini!");
+        SpriteRenderer target2SR = target2Instance.GetComponent<SpriteRenderer>();
         target2SR.sortingOrder = 212;
         Time.timeScale = 0.5f;
-        yield return new WaitUntil(() => GameObject.FindWithTag("Target") == null);
+        target2Active = true;
+        yield return new WaitUntil(() => target2Instance == null);
+
+        target2Active = false;
         Time.timeScale = 1f;
         ResetElement(null);
 
@@ -305,7 +379,7 @@ public class TutorialManager : MonoBehaviour
                 }
             }
 
-            else if (element == target2)
+            else if (element == target2Instance)
             {
                 if (worldHighlights[0] == null)
                 {

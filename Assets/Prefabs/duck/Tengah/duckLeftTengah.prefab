@@ -18,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1579062396558759067, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
       propertyPath: m_SortingOrder
-      value: 8
+      value: 212
       objectReference: {fileID: 0}
     - target: {fileID: 1857956983969891221, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
       propertyPath: m_Sprite
@@ -99,6 +99,10 @@ PrefabInstance:
     - target: {fileID: 7692765136743762092, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7692765136743762092, guid: 844ba7b8cefe57c4988ebc64e0833949, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
