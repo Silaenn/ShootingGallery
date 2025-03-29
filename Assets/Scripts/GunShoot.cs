@@ -16,7 +16,7 @@ public class GunShoot : MonoBehaviour
     [SerializeField] PauseScene pauseScene;
     [SerializeField] float bulletMarkLifetime = 3f;
     [SerializeField] float targetDestroyDelay = 3f;
-    [SerializeField] LayerMask targetLayerMask;
+    public LayerMask targetLayerMask;
 
     [Header("Score Text Settings")]
     [SerializeField] GameObject scoreTextPrefab;
@@ -78,7 +78,7 @@ public class GunShoot : MonoBehaviour
         if (!ammoManager.UseAmmo()) return;
 
         HasShot = true;
-        AudioManager.Instance.ShootAudio();
+        // AudioManager.Instance.ShootAudio();
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, targetLayerMask);
