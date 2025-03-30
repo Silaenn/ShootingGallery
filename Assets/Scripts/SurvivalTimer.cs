@@ -45,6 +45,7 @@ public class SurvivalTimer : MonoBehaviour
     const string HIGH_SCORE_KEY = "HighScore";
     AudioSource audioSource;
     bool hasPlayedTimeOutSound = false;
+    bool isTimerRunning = true;
 
     void Start()
     {
@@ -70,7 +71,7 @@ public class SurvivalTimer : MonoBehaviour
 
     private void Update()
     {
-        if (!isGameOver)
+        if (!isGameOver && isTimerRunning)
         {
             timeLeft -= Time.deltaTime;
             difficultyTimer -= Time.deltaTime;
@@ -277,5 +278,10 @@ public class SurvivalTimer : MonoBehaviour
     public int GetDifficultyLevel()
     {
         return difficultyLevel;
+    }
+
+    public void StopTimer()
+    {
+        isTimerRunning = false;
     }
 }

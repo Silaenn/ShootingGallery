@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using Unity.VisualScripting;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -142,44 +143,37 @@ public class TutorialManager : MonoBehaviour
                 Debug.Log($"Raycast selesai. Hit: {(gunShoot.hit.collider != null ? gunShoot.hit.collider.gameObject.name : "null")}");
                 if (gunShoot.hit.collider != null && gunShoot.hit.collider.CompareTag("Target"))
                 {
+                    GameObject hitTarget = gunShoot.hit.collider.gameObject;
+
                     if (targetsActive)
                     {
                         Debug.Log("Targets aktif, memproses targets...");
-
-                        if (currentIndex >= targets.Length)
+                        for (int i = 0; i < targets.Length; i++)
                         {
-                            Debug.Log("Semua targets sudah diproses.");
-                            currentIndex = 0;
-                            return;
-                        }
-
-                        if (targets[currentIndex] != null)
-                        {
-                            SpriteRenderer targetsSr = targets[currentIndex].GetComponent<SpriteRenderer>();
-                            if (targetsSr != null)
+                            if (targets[i] == hitTarget)
                             {
-                                targetsSr.sortingOrder = 8;
-                            }
-
-                            if (worldHighlights[currentIndex] != null)
-                            {
-                                Debug.Log($"Menghapus WorldHighlight[{currentIndex}]");
-                                Destroy(worldHighlights[currentIndex]);
-                                worldHighlights[currentIndex] = null;
-                            }
-
-                            if (worldHandCursor[currentIndex] != null)
-                            {
-                                Debug.Log($"Menghapus WorldHandCursor[{currentIndex}]");
-                                Destroy(worldHandCursor[currentIndex]);
-                                worldHandCursor[currentIndex] = null;
+                                SpriteRenderer targetsSr = targets[i].GetComponent<SpriteRenderer>();
+                                if (targetsSr != null)
+                                {
+                                    targetsSr.sortingOrder = 8;
+                                }
+                                if (worldHighlights[i] != null)
+                                {
+                                    Debug.Log($"Menonaktifkan WorldHighlight[{i}]");
+                                    worldHighlights[i].SetActive(false);
+                                }
+                                if (worldHandCursor[i] != null)
+                                {
+                                    Debug.Log($"Menonaktifkan WorldHandCursor[{i}]");
+                                    worldHandCursor[i].SetActive(false);
+                                }
+                                targets[i] = null;
+                                break;
                             }
                         }
-
-                        currentIndex++;
                     }
 
-                    if (target2Active)
+                    if (target2Active && hitTarget == target2Instance)
                     {
                         SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
                         if (target2Sr != null)
@@ -188,18 +182,15 @@ public class TutorialManager : MonoBehaviour
                         }
                         if (worldHighlights[0] != null)
                         {
-                            Debug.Log("Menghapus WorldHighlight[0]");
-                            Destroy(worldHighlights[0]);
-                            worldHighlights[0] = null;
+                            Debug.Log("Menonaktifkan WorldHighlight[0]");
+                            worldHighlights[0].SetActive(false);
                         }
                         if (worldHandCursor[0] != null)
                         {
-                            Debug.Log("Menghapus WorldHandCursor[0]");
-                            Destroy(worldHandCursor[0]);
-                            worldHandCursor[0] = null;
+                            Debug.Log("Menonaktifkan WorldHandCursor[0]");
+                            worldHandCursor[0].SetActive(false);
                         }
                     }
-
                 }
             }
             catch (Exception e)
@@ -221,7 +212,6 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(stepDuration);
         ResetElement(scoreText.gameObject);
 
-
         overlayPanel.SetActive(false);
         if (gunShoot != null)
         {
@@ -232,12 +222,11 @@ public class TutorialManager : MonoBehaviour
         if (crossHair != null) crossHair.SetActive(true);
         crossHair.GetComponent<CrosshairController>().enabled = true;
 
-
         bacgroundTarget.SetActive(true);
         targetsActive = true;
         for (int i = 0; i < 4; i++)
         {
-            if (target1 != null)
+            if (target1 != null && targets[i] == null || !targets[i])
             {
                 targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
                 targets[i].SetActive(true);
@@ -248,17 +237,67 @@ public class TutorialManager : MonoBehaviour
         }
         Time.timeScale = 0.5f;
         HighlightElement(targets[0], "Tembak target");
-        yield return new WaitUntil(() =>
+
+        while (true)
         {
-            foreach (GameObject target in targets)
+            yield return new WaitUntil(() =>
             {
-                if (target != null && target.activeInHierarchy)
+                bool allTargetsDestroyed = true;
+                foreach (GameObject target in targets)
                 {
-                    return false;
+                    if (target != null && target.activeInHierarchy)
+                    {
+                        allTargetsDestroyed = false;
+                        break;
+                    }
                 }
-            }
-            return true;
-        });
+
+                if (allTargetsDestroyed) return true;
+
+                if (ammoManager.GetRemainingAmmo() <= 0 && !allTargetsDestroyed)
+                {
+                    ammoManager.ReloadAmmo();
+
+                    for (int i = 0; i < targets.Length; i++)
+                    {
+                        if (targets[i] == null)
+                        {
+                            targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
+                            targets[i].SetActive(true);
+                            targets[i].layer = LayerMask.NameToLayer("Target");
+                            SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
+                            if (targetSr != null)
+                            {
+                                targetSr.sortingOrder = 212;
+                            }
+                        }
+                        else if (!targets[i].activeInHierarchy)
+                        {
+                            targets[i].SetActive(true);
+                            targets[i].transform.position = new Vector3(i * 2f, 0f, 0f);
+                            SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
+                            if (targetSr != null)
+                            {
+                                targetSr.sortingOrder = 212;
+                            }
+                        }
+                        else
+                        {
+                            targets[i].transform.position = new Vector3(i * 2f, 0f, 0f);
+                        }
+                    }
+
+                    if (targets[0] != null)
+                    {
+                        HighlightElement(targets[0], "Tembak target");
+                    }
+                }
+                return false;
+            });
+
+            if (AllTargetsDestroyed()) break;
+        }
+
         targetsActive = false;
         Time.timeScale = 1f;
         instructionText.transform.SetParent(originalInstructionParent, false);
@@ -271,22 +310,48 @@ public class TutorialManager : MonoBehaviour
 
         overlayPanel.SetActive(false);
         bacgroundTarget.SetActive(true);
-        target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
-        target2Instance.SetActive(true);
+
+        if (target2Instance == null)
+        {
+            target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+            target2Instance.SetActive(true);
+        }
 
         HighlightElement(target2Instance, "Tembak target ini!");
         SpriteRenderer target2SR = target2Instance.GetComponent<SpriteRenderer>();
         target2SR.sortingOrder = 212;
         Time.timeScale = 0.5f;
         target2Active = true;
-        yield return new WaitUntil(() => target2Instance == null);
+
+        while (target2Instance != null && target2Instance.activeInHierarchy)
+        {
+            yield return new WaitUntil(() => ammoManager.GetRemainingAmmo() <= 0 || target2Instance == null);
+
+            if (ammoManager.GetRemainingAmmo() <= 0 && target2Instance.activeInHierarchy)
+            {
+                ammoManager.ReloadAmmo();
+                if (target2Instance == null || !target2Instance)
+                {
+                    target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+                }
+                target2Instance.SetActive(true);
+                target2Instance.transform.position = new Vector3(0f, 0f, 0f);
+                SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
+                target2Sr.sortingOrder = 212;
+                HighlightElement(target2Instance, "Tembak target ini!");
+            }
+        }
 
         target2Active = false;
         Time.timeScale = 1f;
         ResetElement(null);
 
+        SurvivalTimer survivalTimer = FindObjectOfType<SurvivalTimer>();
+        if (survivalTimer != null)
+        {
+            survivalTimer.StopTimer();
+        }
         overlayPanel.SetActive(false);
-
         endText.gameObject.SetActive(true);
 
         yield return new WaitForSecondsRealtime(5f);
@@ -362,14 +427,13 @@ public class TutorialManager : MonoBehaviour
         else
         {
             currentTrackedTarget = element;
-
             instructionText.transform.SetParent(mainCanvas.transform, false);
 
             if (element == targets[0])
             {
                 for (int i = 0; i < targets.Length; i++)
                 {
-                    if (targets[i] != null)
+                    if (targets[i] != null && targets[i].activeInHierarchy)
                     {
                         if (worldHighlights[i] == null)
                         {
@@ -395,34 +459,47 @@ public class TutorialManager : MonoBehaviour
                         worldHandCursor[i].SetActive(true);
                         UpdateWorldHandCursorPosition(targets[i], worldHandCursor[i]);
                     }
+                    else
+                    {
+                        if (worldHighlights[i] != null) worldHighlights[i].SetActive(false);
+                        if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
+                    }
                 }
             }
 
             else if (element == target2Instance)
             {
-                if (worldHighlights[0] == null)
+                if (target2Instance != null && target2Instance.activeInHierarchy)
                 {
-                    worldHighlights[0] = new GameObject("WorldHighlight_0");
-                    SpriteRenderer sr = worldHighlights[0].AddComponent<SpriteRenderer>();
-                    sr.sprite = highlightSprite;
-                    sr.sortingLayerName = "Default";
-                    sr.sortingOrder = 211;
-                    worldHighlights[0].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
-                }
-                worldHighlights[0].SetActive(true);
-                UpdateWorldHighlightPosition(target2, worldHighlights[0]);
+                    if (worldHighlights[0] == null)
+                    {
+                        worldHighlights[0] = new GameObject("WorldHighlight_0");
+                        SpriteRenderer sr = worldHighlights[0].AddComponent<SpriteRenderer>();
+                        sr.sprite = highlightSprite;
+                        sr.sortingLayerName = "Default";
+                        sr.sortingOrder = 211;
+                        worldHighlights[0].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
+                    }
+                    worldHighlights[0].SetActive(true);
+                    UpdateWorldHighlightPosition(target2, worldHighlights[0]);
 
-                if (worldHandCursor[0] == null)
-                {
-                    worldHandCursor[0] = new GameObject("WorldHandCursor_0");
-                    SpriteRenderer sr = worldHandCursor[0].AddComponent<SpriteRenderer>();
-                    sr.sprite = handCursorSprite;
-                    sr.sortingLayerName = "Default";
-                    sr.sortingOrder = 213;
-                    worldHandCursor[0].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
+                    if (worldHandCursor[0] == null)
+                    {
+                        worldHandCursor[0] = new GameObject("WorldHandCursor_0");
+                        SpriteRenderer sr = worldHandCursor[0].AddComponent<SpriteRenderer>();
+                        sr.sprite = handCursorSprite;
+                        sr.sortingLayerName = "Default";
+                        sr.sortingOrder = 213;
+                        worldHandCursor[0].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
+                    }
+                    worldHandCursor[0].SetActive(true);
+                    UpdateWorldHandCursorPosition(target2, worldHandCursor[0]);
                 }
-                worldHandCursor[0].SetActive(true);
-                UpdateWorldHandCursorPosition(target2, worldHandCursor[0]);
+                else
+                {
+                    if (worldHighlights[0] != null) worldHighlights[0].SetActive(false);
+                    if (worldHandCursor[0] != null) worldHandCursor[0].SetActive(false);
+                }
 
                 highlightBox.SetActive(false);
                 handCursor.gameObject.SetActive(false);
@@ -496,5 +573,17 @@ public class TutorialManager : MonoBehaviour
         handCursor.gameObject.SetActive(false);
         instructionText.gameObject.SetActive(false);
         highlightBox.SetActive(false);
+    }
+
+    bool AllTargetsDestroyed()
+    {
+        foreach (GameObject target in targets)
+        {
+            if (target != null && target.activeInHierarchy)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
