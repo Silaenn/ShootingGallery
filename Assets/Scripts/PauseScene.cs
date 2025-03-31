@@ -5,6 +5,7 @@ public class PauseScene : MonoBehaviour
 {
     [SerializeField] GameObject panelPause;
     [SerializeField] Sprite spritePause;
+    [SerializeField] Sprite spritePlay;
 
     SpriteRenderer spriteRenderer;
     bool isPaused = false;
@@ -36,6 +37,10 @@ public class PauseScene : MonoBehaviour
         if (crosshairController != null)
         {
             crosshairController.OnResume();
+        }
+        if (spriteRenderer != null && spritePlay != null)
+        {
+            spriteRenderer.sprite = spritePlay;
         }
         isPaused = false;
     }

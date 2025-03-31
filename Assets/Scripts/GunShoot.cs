@@ -77,6 +77,14 @@ public class GunShoot : MonoBehaviour
             }
         }
 
+        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit2D = Physics2D.Raycast(mousePosition, Vector2.zero);
+        if (hit2D.collider != null && hit2D.collider.CompareTag("NoShootZone"))
+        {
+            Debug.Log("Klik pada NoShootZone: " + hit2D.collider.gameObject.name);
+            return true;
+        }
+
         return false;
     }
 
@@ -125,8 +133,10 @@ public class GunShoot : MonoBehaviour
             SurvivalTimer timer = FindAnyObjectByType<SurvivalTimer>();
             if (timer != null)
             {
+                int pointsBefore = timer.GetScore();
                 timer.AddScore(target.scoreValue);
-                SpawnScoreText(hit.point, target.scoreValue);
+                int pointsAdded = timer.GetScore() - pointsBefore;
+                SpawnScoreText(hit.point, pointsAdded);
             }
         }
 
@@ -163,9 +173,9 @@ public class GunShoot : MonoBehaviour
     IEnumerator DestroyTargetWithDelay(GameObject target)
     {
         yield return new WaitForSeconds(targetDestroyDelay);
-        OnTargetDestroyed?.Invoke(target); // Kasih tahu TutorialManager
+        OnTargetDestroyed?.Invoke(target);
         Destroy(target);
-        ResetShoot(); // Reset setelah hancur
+        ResetShoot();
     }
 
     void SpawnBulletMark(Ray ray)

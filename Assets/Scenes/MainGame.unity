@@ -664,7 +664,7 @@ GameObject:
   - component: {fileID: 114872447}
   m_Layer: 0
   m_Name: Music
-  m_TagString: Untagged
+  m_TagString: NoShootZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1142,7 +1142,7 @@ GameObject:
   - component: {fileID: 221322333}
   m_Layer: 0
   m_Name: Pause
-  m_TagString: Untagged
+  m_TagString: NoShootZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1273,6 +1273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panelPause: {fileID: 803006282}
   spritePause: {fileID: 848173755, guid: 6e1c7a9a34b691b4c9cdcd1cf0875465, type: 3}
+  spritePlay: {fileID: 763467252, guid: 6e1c7a9a34b691b4c9cdcd1cf0875465, type: 3}
 --- !u!114 &221322333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6957,7 +6958,7 @@ GameObject:
   - component: {fileID: 1290821750}
   m_Layer: 0
   m_Name: Sound
-  m_TagString: Untagged
+  m_TagString: NoShootZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

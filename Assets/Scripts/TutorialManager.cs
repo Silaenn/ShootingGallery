@@ -53,6 +53,7 @@ public class TutorialManager : MonoBehaviour
     bool targetsActive = false;
     bool target2Active = false;
     bool tutorialStepCompleted = false;
+    bool target2Shot = false;
 
     Color gordenOriginalColor;
     Color gordenRopeOriginalColor;
@@ -233,8 +234,12 @@ public class TutorialManager : MonoBehaviour
                         }
                     }
 
-                    if (target2Active && hitTarget == target2Instance)
+                    if (target2Active && hitTarget == target2Instance && !target2Shot)
                     {
+                        target2Shot = true;
+                        gunShoot.enabled = false;
+                        if (crossHair != null) crossHair.GetComponent<CrosshairController>().enabled = false;
+
                         SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
                         if (target2Sr != null)
                         {
@@ -294,6 +299,8 @@ public class TutorialManager : MonoBehaviour
         {
             target2Sr.sortingOrder = 212;
         }
+        target2Shot = false;
+        if (gunShoot != null) gunShoot.enabled = true;
         HighlightElement(target2Instance, "Tembak target ini!");
     }
 
@@ -503,6 +510,8 @@ public class TutorialManager : MonoBehaviour
                 target2Instance.transform.position = new Vector3(0f, 0f, 0f);
                 SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
                 target2Sr.sortingOrder = 212;
+                target2Shot = false;
+                if (gunShoot != null) gunShoot.enabled = true;
                 HighlightElement(target2Instance, "Tembak target ini!");
             }
 
@@ -519,7 +528,6 @@ public class TutorialManager : MonoBehaviour
                 }
             }
 
-            gunShoot.enabled = false;
             Cursor.visible = false;
         }
 
@@ -548,6 +556,9 @@ public class TutorialManager : MonoBehaviour
         {
             backgroundTargetSr.color = new Color(0f, 0f, 0f, 241f / 255f);
         }
+
+        PlayerPrefs.SetInt("HasCompletedTutorial", 1);
+        PlayerPrefs.Save();
         yield return new WaitForSecondsRealtime(5f);
         SceneManager.LoadScene("MainGame");
     }
@@ -811,6 +822,7 @@ public class TutorialManager : MonoBehaviour
         if (destroyedTarget == target2Instance)
         {
             target2Instance = null;
+            target2Shot = false;
             Debug.Log("Target2 dihancurkan oleh GunShoot");
         }
     }
