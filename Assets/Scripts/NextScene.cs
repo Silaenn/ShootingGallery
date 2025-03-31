@@ -14,7 +14,8 @@ public class NextScene : MonoBehaviour
     [SerializeField] float rotationAngle = 180f;
 
     [Header("Scene Settings")]
-    [SerializeField] string nextSceneName;
+    [SerializeField] string tutorialSceneName = "MainTutorial";
+    [SerializeField] string gameSceneName = "MainGame";
 
     SpriteRenderer childSpriteRenderer;
 
@@ -81,15 +82,13 @@ public class NextScene : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        if (PlayerPrefs.GetInt("HasCompletedTutorial", 0) == 0)
         {
-            SceneManager.LoadScene(nextSceneIndex);
+            SceneManager.LoadScene(tutorialSceneName);
         }
         else
         {
-            Debug.LogWarning("Tidak ada scene berikutnya! kembali ke MainMenu");
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene(gameSceneName);
         }
     }
 

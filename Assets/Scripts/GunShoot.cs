@@ -28,6 +28,10 @@ public class GunShoot : MonoBehaviour
     public RaycastHit2D hit;
 
     public bool HasShot { get; set; } = false;
+    public bool CanShoot { get; set; } = true;
+
+    // Event buat kasih tahu target hancur
+    public event Action<GameObject> OnTargetDestroyed;
 
     void Start()
     {
@@ -43,6 +47,7 @@ public class GunShoot : MonoBehaviour
 
         Cursor.visible = false;
     }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0) && !IsPointerOverUI())
@@ -72,6 +77,14 @@ public class GunShoot : MonoBehaviour
             }
         }
 
+        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit2D = Physics2D.Raycast(mousePosition, Vector2.zero);
+        if (hit2D.collider != null && hit2D.collider.CompareTag("NoShootZone"))
+        {
+            Debug.Log("Klik pada NoShootZone: " + hit2D.collider.gameObject.name);
+            return true;
+        }
+
         return false;
     }
 
@@ -81,8 +94,7 @@ public class GunShoot : MonoBehaviour
         if (!ammoManager.UseAmmo()) return;
 
         HasShot = true;
-        // AudioManager.Instance.ShootAudio();
-
+        AudioManager.Instance.ShootAudio();
 
         RayCast(out ray, out hit);
         Debug.Log($"Shoot: Hit = {(hit.collider != null ? hit.collider.gameObject.name : "null")}");
@@ -93,6 +105,7 @@ public class GunShoot : MonoBehaviour
         else
         {
             SpawnBulletMark(ray);
+            ResetShoot(); // Reset kalau ga kena target
         }
     }
 
@@ -120,8 +133,10 @@ public class GunShoot : MonoBehaviour
             SurvivalTimer timer = FindAnyObjectByType<SurvivalTimer>();
             if (timer != null)
             {
+                int pointsBefore = timer.GetScore();
                 timer.AddScore(target.scoreValue);
-                SpawnScoreText(hit.point, target.scoreValue);
+                int pointsAdded = timer.GetScore() - pointsBefore;
+                SpawnScoreText(hit.point, pointsAdded);
             }
         }
 
@@ -152,7 +167,15 @@ public class GunShoot : MonoBehaviour
             targetTransform.GetComponent<MovingTarget>().enabled = false;
         }
 
-        Destroy(hit.collider.gameObject, targetDestroyDelay);
+        StartCoroutine(DestroyTargetWithDelay(hit.collider.gameObject));
+    }
+
+    IEnumerator DestroyTargetWithDelay(GameObject target)
+    {
+        yield return new WaitForSeconds(targetDestroyDelay);
+        OnTargetDestroyed?.Invoke(target);
+        Destroy(target);
+        ResetShoot();
     }
 
     void SpawnBulletMark(Ray ray)
@@ -213,5 +236,4 @@ public class GunShoot : MonoBehaviour
 
         Destroy(textObj);
     }
-
 }

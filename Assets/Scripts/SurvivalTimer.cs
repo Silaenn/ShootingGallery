@@ -295,4 +295,9 @@ public class SurvivalTimer : MonoBehaviour
     {
         return timeLeft;
     }
+
+    public int GetScore()
+    {
+        return score;
+    }
 }

@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
-using Unity.VisualScripting;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -30,8 +29,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] GameObject gorden;
     [SerializeField] GameObject gordenRope;
     [SerializeField] SurvivalTimer survivalTimer;
-    float targetStartTime;
-
+    [SerializeField] float targetStartTime;
 
     [SerializeField] float stepDuration = 4f;
     RectTransform highlightRect;
@@ -54,9 +52,12 @@ public class TutorialManager : MonoBehaviour
     GameObject target2Instance;
     bool targetsActive = false;
     bool target2Active = false;
+    bool tutorialStepCompleted = false;
+    bool target2Shot = false;
+
     Color gordenOriginalColor;
     Color gordenRopeOriginalColor;
-
+    int targetsShotCount = 0;
 
     void Start()
     {
@@ -86,7 +87,11 @@ public class TutorialManager : MonoBehaviour
         {
             overlayPanel.transform.SetAsLastSibling();
         }
-        if (gunShoot != null) gunShoot.enabled = false;
+        if (gunShoot != null)
+        {
+            gunShoot.enabled = false;
+            gunShoot.OnTargetDestroyed += OnTargetDestroyed;
+        }
         if (gunMovement != null) gunMovement.enabled = false;
         if (gunShoot != null)
         {
@@ -131,6 +136,12 @@ public class TutorialManager : MonoBehaviour
             originalReloadSiblingIndex = reloadButton.transform.GetSiblingIndex();
         }
 
+        if (survivalTimer == null)
+        {
+            survivalTimer = FindObjectOfType<SurvivalTimer>();
+            if (survivalTimer == null) Debug.LogWarning("SurvivalTimer tidak ditemukan!");
+        }
+
         StartCoroutine(RunTutorial());
     }
 
@@ -159,7 +170,6 @@ public class TutorialManager : MonoBehaviour
 
         if (target2Active && target2Instance != null && target2Instance.activeInHierarchy)
         {
-            Debug.Log($"Posisi target2Instance: X = {target2Instance.transform.position.x}");
             if (Mathf.Abs(target2Instance.transform.position.x - -9.584623f) < 0.01f)
             {
                 ResetTarget2();
@@ -174,7 +184,6 @@ public class TutorialManager : MonoBehaviour
             {
                 if (targets[i] != null && targets[i].activeInHierarchy && Mathf.Abs(targets[i].transform.position.x - -9.584623f) < 0.01f)
                 {
-                    survivalTimer.SetTime(targetStartTime);
                     Debug.Log($"Target[{i}] mencapai X = -9.584623, akan reset semua target");
                     shouldResetAll = true;
                     break;
@@ -186,8 +195,6 @@ public class TutorialManager : MonoBehaviour
                 ResetAllTargets();
             }
         }
-
-
 
         if (gunShoot != null && gunShoot.HasShot)
         {
@@ -201,11 +208,12 @@ public class TutorialManager : MonoBehaviour
 
                     if (targetsActive)
                     {
-                        Debug.Log("Targets aktif, memproses targets...");
                         for (int i = 0; i < targets.Length; i++)
                         {
                             if (targets[i] == hitTarget)
                             {
+                                targetsShotCount++;
+                                Debug.Log($"Target[{i}] ditembak, total ditembak: {targetsShotCount}");
                                 SpriteRenderer targetsSr = targets[i].GetComponent<SpriteRenderer>();
                                 if (targetsSr != null)
                                 {
@@ -213,22 +221,25 @@ public class TutorialManager : MonoBehaviour
                                 }
                                 if (worldHighlights[i] != null)
                                 {
-                                    Debug.Log($"Menonaktifkan WorldHighlight[{i}]");
                                     worldHighlights[i].SetActive(false);
+                                    Debug.Log($"WorldHighlight[{i}] dimatikan saat target kena tembak");
                                 }
                                 if (worldHandCursor[i] != null)
                                 {
-                                    Debug.Log($"Menonaktifkan WorldHandCursor[{i}]");
                                     worldHandCursor[i].SetActive(false);
+                                    Debug.Log($"WorldHandCursor[{i}] dimatikan saat target kena tembak");
                                 }
-                                targets[i] = null;
                                 break;
                             }
                         }
                     }
 
-                    if (target2Active && hitTarget == target2Instance)
+                    if (target2Active && hitTarget == target2Instance && !target2Shot)
                     {
+                        target2Shot = true;
+                        gunShoot.enabled = false;
+                        if (crossHair != null) crossHair.GetComponent<CrosshairController>().enabled = false;
+
                         SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
                         if (target2Sr != null)
                         {
@@ -236,13 +247,13 @@ public class TutorialManager : MonoBehaviour
                         }
                         if (worldHighlights[0] != null)
                         {
-                            Debug.Log("Menonaktifkan WorldHighlight[0]");
                             worldHighlights[0].SetActive(false);
+                            Debug.Log("WorldHighlight[0] dimatikan saat target2 kena tembak");
                         }
                         if (worldHandCursor[0] != null)
                         {
-                            Debug.Log("Menonaktifkan WorldHandCursor[0]");
                             worldHandCursor[0].SetActive(false);
+                            Debug.Log("WorldHandCursor[0] dimatikan saat target2 kena tembak");
                         }
                     }
                 }
@@ -251,19 +262,18 @@ public class TutorialManager : MonoBehaviour
             {
                 Debug.LogError($"Error di raycast: {e.Message}");
             }
-            gunShoot.ResetShoot();
         }
-
     }
 
     void ResetAllTargets()
     {
+        targetsShotCount = 0;
         for (int i = 0; i < targets.Length; i++)
         {
-            SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
+            SpriteRenderer targetSr = targets[i]?.GetComponent<SpriteRenderer>();
             if (targetSr != null)
             {
-                targetSr.sortingOrder = 225; // Lebih tinggi dari gorden
+                targetSr.sortingOrder = 225;
             }
             if (targets[i] != null)
             {
@@ -278,7 +288,6 @@ public class TutorialManager : MonoBehaviour
 
     void ResetTarget2()
     {
-        Debug.Log("masuk");
         if (target2Instance != null)
         {
             Destroy(target2Instance);
@@ -290,6 +299,8 @@ public class TutorialManager : MonoBehaviour
         {
             target2Sr.sortingOrder = 212;
         }
+        target2Shot = false;
+        if (gunShoot != null) gunShoot.enabled = true;
         HighlightElement(target2Instance, "Tembak target ini!");
     }
 
@@ -307,7 +318,6 @@ public class TutorialManager : MonoBehaviour
         if (gunShoot != null)
         {
             gunShoot.enabled = true;
-            gunShoot.ResetShoot();
         }
         if (gunMovement != null) gunMovement.enabled = true;
         if (crossHair != null) crossHair.SetActive(true);
@@ -315,12 +325,12 @@ public class TutorialManager : MonoBehaviour
 
         bacgroundTarget.SetActive(true);
         targetsActive = true;
+        targetStartTime = survivalTimer.GetTime();
         for (int i = 0; i < 4; i++)
         {
-            if (target1 != null && targets[i] == null || !targets[i])
+            if (target1 != null && (targets[i] == null || !targets[i]))
             {
                 targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
-                targetStartTime = survivalTimer.GetTime();
                 targets[i].SetActive(true);
                 targets[i].layer = LayerMask.NameToLayer("Target");
                 SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
@@ -333,18 +343,16 @@ public class TutorialManager : MonoBehaviour
         {
             SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
             SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null & gordenRopeSr != null)
+            if (gordenSr != null && gordenRopeSr != null)
             {
                 gordenSr.color = new Color(105f / 255f, 104f / 255f, 104f / 255f, 1f);
                 gordenRopeSr.color = new Color(101f / 255f, 100f / 255f, 100f / 255f, 1f);
             }
         }
         Time.timeScale = 0.5f;
-        targetStartTime = survivalTimer != null ? survivalTimer.GetTime() : 0f;
-
         HighlightElement(targets[0], "Tembak target");
 
-        while (true)
+        while (!tutorialStepCompleted)
         {
             yield return new WaitUntil(() =>
             {
@@ -361,15 +369,29 @@ public class TutorialManager : MonoBehaviour
                 if (allTargetsDestroyed)
                 {
                     targetsActive = false;
+                    tutorialStepCompleted = true;
+                    for (int i = 0; i < worldHighlights.Length; i++)
+                    {
+                        if (worldHighlights[i] != null) worldHighlights[i].SetActive(false);
+                        if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
+                    }
+                    Debug.Log("Semua target hancur, keluar loop, semua highlight dimatikan");
                     return true;
                 }
 
-                if (ammoManager.GetRemainingAmmo() <= 0 && !allTargetsDestroyed)
+                if (ammoManager.GetRemainingAmmo() <= 0 && targetsShotCount < 4)
                 {
+                    Debug.Log("Ammo habis, reset target karena ada yang belum ditembak");
                     ammoManager.ReloadAmmo();
 
+                    bool targetsStillExist = false;
                     for (int i = 0; i < targets.Length; i++)
                     {
+                        if (targets[i] != null && targets[i].activeInHierarchy)
+                        {
+                            targetsStillExist = true;
+                        }
+
                         if (targets[i] == null)
                         {
                             targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
@@ -397,21 +419,22 @@ public class TutorialManager : MonoBehaviour
                         }
                     }
 
-                    if (survivalTimer != null)
+                    if (survivalTimer != null && targetsStillExist)
                     {
                         survivalTimer.SetTime(targetStartTime);
+                        Debug.Log($"Waktu direset ke {targetStartTime} karena masih ada target belum ditembak. TimeLeft: {survivalTimer.GetTime()}");
                     }
 
-                    if (targets[0] != null)
-                    {
-                        HighlightElement(targets[0], "Tembak target");
-                    }
+                    targetsShotCount = 0;
+                    HighlightElement(targets[0], "Tembak target");
                 }
+                else if (ammoManager.GetRemainingAmmo() <= 0 && targetsShotCount >= 4)
+                {
+                    Debug.Log("Ammo habis, tapi semua target udah ditembak, nunggu hancur");
+                }
+
                 return false;
             });
-
-            if (AllTargetsDestroyed()) break;
-
         }
 
         if (gorden != null && gordenRope != null)
@@ -439,7 +462,7 @@ public class TutorialManager : MonoBehaviour
         {
             SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
             SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null & gordenRopeSr != null)
+            if (gordenSr != null && gordenRopeSr != null)
             {
                 gordenSr.color = new Color(255f, 255f, 255f, 255f);
                 gordenRopeSr.color = new Color(255f, 255f, 255f, 255f);
@@ -456,13 +479,12 @@ public class TutorialManager : MonoBehaviour
             target2Instance.SetActive(true);
         }
 
-
         HighlightElement(target2Instance, "Tembak target ini!");
         if (gorden != null && gordenRope != null)
         {
             SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
             SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null & gordenRopeSr != null)
+            if (gordenSr != null && gordenRopeSr != null)
             {
                 gordenSr.color = new Color(105f / 255f, 104f / 255f, 104f / 255f, 1f);
                 gordenRopeSr.color = new Color(101f / 255f, 100f / 255f, 100f / 255f, 1f);
@@ -488,6 +510,8 @@ public class TutorialManager : MonoBehaviour
                 target2Instance.transform.position = new Vector3(0f, 0f, 0f);
                 SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
                 target2Sr.sortingOrder = 212;
+                target2Shot = false;
+                if (gunShoot != null) gunShoot.enabled = true;
                 HighlightElement(target2Instance, "Tembak target ini!");
             }
 
@@ -495,7 +519,7 @@ public class TutorialManager : MonoBehaviour
             {
                 SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
                 SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-                if (gordenSr != null & gordenRopeSr != null)
+                if (gordenSr != null && gordenRopeSr != null)
                 {
                     gordenSr.sortingOrder = 174;
                     gordenRopeSr.sortingOrder = 175;
@@ -503,12 +527,13 @@ public class TutorialManager : MonoBehaviour
                     gordenRopeSr.color = gordenRopeOriginalColor;
                 }
             }
+
+            Cursor.visible = false;
         }
 
         target2Active = false;
         Time.timeScale = 1f;
         ResetElement(null);
-
 
         if (survivalTimer != null)
         {
@@ -523,12 +548,7 @@ public class TutorialManager : MonoBehaviour
             {
                 canvas.sortingOrder = 204;
             }
-            else
-            {
-                Debug.LogError("canvasNew tidak punya komponen Canvas!");
-            }
         }
-
 
         endText.gameObject.SetActive(true);
         SpriteRenderer backgroundTargetSr = bacgroundTarget.GetComponent<SpriteRenderer>();
@@ -536,6 +556,9 @@ public class TutorialManager : MonoBehaviour
         {
             backgroundTargetSr.color = new Color(0f, 0f, 0f, 241f / 255f);
         }
+
+        PlayerPrefs.SetInt("HasCompletedTutorial", 1);
+        PlayerPrefs.Save();
         yield return new WaitForSecondsRealtime(5f);
         SceneManager.LoadScene("MainGame");
     }
@@ -611,6 +634,17 @@ public class TutorialManager : MonoBehaviour
             highlightBox.SetActive(true);
             handCursor.gameObject.SetActive(true);
             instructionText.gameObject.SetActive(true);
+
+            Animator cursorAnimator = handCursor.GetComponent<Animator>();
+            if (cursorAnimator != null)
+            {
+                cursorAnimator.Play("HandCursor", -1, 0f);
+                Debug.Log($"Animasi cursor diputar untuk {element.name}");
+            }
+            else
+            {
+                Debug.LogWarning("Animator tidak ditemukan di handCursor!");
+            }
         }
         else
         {
@@ -654,7 +688,6 @@ public class TutorialManager : MonoBehaviour
                     }
                 }
             }
-
             else if (element == target2Instance)
             {
                 if (target2Instance != null && target2Instance.activeInHierarchy)
@@ -669,7 +702,7 @@ public class TutorialManager : MonoBehaviour
                         worldHighlights[0].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
                     }
                     worldHighlights[0].SetActive(true);
-                    UpdateWorldHighlightPosition(target2, worldHighlights[0]);
+                    UpdateWorldHighlightPosition(target2Instance, worldHighlights[0]);
 
                     if (worldHandCursor[0] == null)
                     {
@@ -681,7 +714,7 @@ public class TutorialManager : MonoBehaviour
                         worldHandCursor[0].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
                     }
                     worldHandCursor[0].SetActive(true);
-                    UpdateWorldHandCursorPosition(target2, worldHandCursor[0]);
+                    UpdateWorldHandCursorPosition(target2Instance, worldHandCursor[0]);
                 }
                 else
                 {
@@ -774,5 +807,23 @@ public class TutorialManager : MonoBehaviour
             }
         }
         return true;
+    }
+
+    void OnTargetDestroyed(GameObject destroyedTarget)
+    {
+        for (int i = 0; i < targets.Length; i++)
+        {
+            if (targets[i] == destroyedTarget)
+            {
+                targets[i] = null;
+                Debug.Log($"Target[{i}] dihancurkan oleh GunShoot");
+            }
+        }
+        if (destroyedTarget == target2Instance)
+        {
+            target2Instance = null;
+            target2Shot = false;
+            Debug.Log("Target2 dihancurkan oleh GunShoot");
+        }
     }
 }
