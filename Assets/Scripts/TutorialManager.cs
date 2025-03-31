@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 public class TutorialManager : MonoBehaviour
 {
     [SerializeField] GameObject overlayPanel;
+    [SerializeField] GameObject canvasNew;
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] TextMeshProUGUI scoreText;
     [SerializeField] GameObject ammoIconsParent;
@@ -26,6 +27,10 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] Sprite handCursorSprite;
     [SerializeField] GameObject bacgroundTarget;
     [SerializeField] LayerMask targetLayerMask;
+    [SerializeField] GameObject gorden;
+    [SerializeField] GameObject gordenRope;
+    [SerializeField] SurvivalTimer survivalTimer;
+    float targetStartTime;
 
 
     [SerializeField] float stepDuration = 4f;
@@ -49,7 +54,8 @@ public class TutorialManager : MonoBehaviour
     GameObject target2Instance;
     bool targetsActive = false;
     bool target2Active = false;
-    int currentIndex = 0;
+    Color gordenOriginalColor;
+    Color gordenRopeOriginalColor;
 
 
     void Start()
@@ -85,6 +91,22 @@ public class TutorialManager : MonoBehaviour
         if (gunShoot != null)
         {
             gunShoot.targetLayerMask = targetLayerMask;
+        }
+        if (gorden != null)
+        {
+            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
+            if (gordenSr != null)
+            {
+                gordenOriginalColor = gordenSr.color;
+            }
+        }
+        if (gordenRope != null)
+        {
+            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
+            if (gordenRopeSr != null)
+            {
+                gordenRopeOriginalColor = gordenRopeSr.color;
+            }
         }
         crossHair.GetComponent<CrosshairController>().enabled = false;
 
@@ -134,6 +156,38 @@ public class TutorialManager : MonoBehaviour
                 UpdateWorldHandCursorPosition(target2Instance, worldHandCursor[0]);
             }
         }
+
+        if (target2Active && target2Instance != null && target2Instance.activeInHierarchy)
+        {
+            Debug.Log($"Posisi target2Instance: X = {target2Instance.transform.position.x}");
+            if (Mathf.Abs(target2Instance.transform.position.x - -9.584623f) < 0.01f)
+            {
+                ResetTarget2();
+            }
+        }
+
+        if (targetsActive)
+        {
+            bool shouldResetAll = false;
+
+            for (int i = 0; i < targets.Length; i++)
+            {
+                if (targets[i] != null && targets[i].activeInHierarchy && Mathf.Abs(targets[i].transform.position.x - -9.584623f) < 0.01f)
+                {
+                    survivalTimer.SetTime(targetStartTime);
+                    Debug.Log($"Target[{i}] mencapai X = -9.584623, akan reset semua target");
+                    shouldResetAll = true;
+                    break;
+                }
+            }
+
+            if (shouldResetAll)
+            {
+                ResetAllTargets();
+            }
+        }
+
+
 
         if (gunShoot != null && gunShoot.HasShot)
         {
@@ -202,6 +256,43 @@ public class TutorialManager : MonoBehaviour
 
     }
 
+    void ResetAllTargets()
+    {
+        for (int i = 0; i < targets.Length; i++)
+        {
+            SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
+            if (targetSr != null)
+            {
+                targetSr.sortingOrder = 225; // Lebih tinggi dari gorden
+            }
+            if (targets[i] != null)
+            {
+                Destroy(targets[i]);
+            }
+            targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
+            targets[i].SetActive(true);
+            targets[i].layer = LayerMask.NameToLayer("Target");
+        }
+        HighlightElement(targets[0], "Tembak target");
+    }
+
+    void ResetTarget2()
+    {
+        Debug.Log("masuk");
+        if (target2Instance != null)
+        {
+            Destroy(target2Instance);
+        }
+        target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+        target2Instance.SetActive(true);
+        SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
+        if (target2Sr != null)
+        {
+            target2Sr.sortingOrder = 212;
+        }
+        HighlightElement(target2Instance, "Tembak target ini!");
+    }
+
     System.Collections.IEnumerator RunTutorial()
     {
         HighlightElement(timerText.gameObject, "Ini waktu permainan!", true);
@@ -229,13 +320,28 @@ public class TutorialManager : MonoBehaviour
             if (target1 != null && targets[i] == null || !targets[i])
             {
                 targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
+                targetStartTime = survivalTimer.GetTime();
                 targets[i].SetActive(true);
                 targets[i].layer = LayerMask.NameToLayer("Target");
                 SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
                 targetSr.sortingOrder = 212;
+                targetSr.sortingLayerName = "Target";
+            }
+        }
+
+        if (gorden != null && gordenRope != null)
+        {
+            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
+            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
+            if (gordenSr != null & gordenRopeSr != null)
+            {
+                gordenSr.color = new Color(105f / 255f, 104f / 255f, 104f / 255f, 1f);
+                gordenRopeSr.color = new Color(101f / 255f, 100f / 255f, 100f / 255f, 1f);
             }
         }
         Time.timeScale = 0.5f;
+        targetStartTime = survivalTimer != null ? survivalTimer.GetTime() : 0f;
+
         HighlightElement(targets[0], "Tembak target");
 
         while (true)
@@ -252,7 +358,11 @@ public class TutorialManager : MonoBehaviour
                     }
                 }
 
-                if (allTargetsDestroyed) return true;
+                if (allTargetsDestroyed)
+                {
+                    targetsActive = false;
+                    return true;
+                }
 
                 if (ammoManager.GetRemainingAmmo() <= 0 && !allTargetsDestroyed)
                 {
@@ -287,6 +397,11 @@ public class TutorialManager : MonoBehaviour
                         }
                     }
 
+                    if (survivalTimer != null)
+                    {
+                        survivalTimer.SetTime(targetStartTime);
+                    }
+
                     if (targets[0] != null)
                     {
                         HighlightElement(targets[0], "Tembak target");
@@ -296,6 +411,18 @@ public class TutorialManager : MonoBehaviour
             });
 
             if (AllTargetsDestroyed()) break;
+
+        }
+
+        if (gorden != null && gordenRope != null)
+        {
+            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
+            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
+            if (gordenSr != null && gordenRopeSr != null)
+            {
+                gordenSr.color = gordenOriginalColor;
+                gordenRopeSr.color = gordenRopeOriginalColor;
+            }
         }
 
         targetsActive = false;
@@ -304,9 +431,20 @@ public class TutorialManager : MonoBehaviour
 
         overlayPanel.SetActive(true);
         bacgroundTarget.SetActive(false);
-        HighlightElement(reloadButton.gameObject, "Ammo habis? Klik Reload!", true);
+        HighlightElement(reloadButton.gameObject, "Ammo berkurang? Klik Reload!", true);
         yield return new WaitUntil(() => ammoManager.GetRemainingAmmo() == 4);
         ResetElement(reloadButton.gameObject);
+
+        if (gorden != null && gordenRope != null)
+        {
+            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
+            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
+            if (gordenSr != null & gordenRopeSr != null)
+            {
+                gordenSr.color = new Color(255f, 255f, 255f, 255f);
+                gordenRopeSr.color = new Color(255f, 255f, 255f, 255f);
+            }
+        }
 
         overlayPanel.SetActive(false);
         bacgroundTarget.SetActive(true);
@@ -314,10 +452,22 @@ public class TutorialManager : MonoBehaviour
         if (target2Instance == null)
         {
             target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+            target2Instance.layer = LayerMask.NameToLayer("Target");
             target2Instance.SetActive(true);
         }
 
+
         HighlightElement(target2Instance, "Tembak target ini!");
+        if (gorden != null && gordenRope != null)
+        {
+            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
+            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
+            if (gordenSr != null & gordenRopeSr != null)
+            {
+                gordenSr.color = new Color(105f / 255f, 104f / 255f, 104f / 255f, 1f);
+                gordenRopeSr.color = new Color(101f / 255f, 100f / 255f, 100f / 255f, 1f);
+            }
+        }
         SpriteRenderer target2SR = target2Instance.GetComponent<SpriteRenderer>();
         target2SR.sortingOrder = 212;
         Time.timeScale = 0.5f;
@@ -327,10 +477,10 @@ public class TutorialManager : MonoBehaviour
         {
             yield return new WaitUntil(() => ammoManager.GetRemainingAmmo() <= 0 || target2Instance == null);
 
-            if (ammoManager.GetRemainingAmmo() <= 0 && target2Instance.activeInHierarchy)
+            if (ammoManager.GetRemainingAmmo() <= 0 && target2Instance != null && target2Instance.activeInHierarchy)
             {
                 ammoManager.ReloadAmmo();
-                if (target2Instance == null || !target2Instance)
+                if (target2Instance == null || !target2Instance.activeInHierarchy)
                 {
                     target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
                 }
@@ -340,20 +490,52 @@ public class TutorialManager : MonoBehaviour
                 target2Sr.sortingOrder = 212;
                 HighlightElement(target2Instance, "Tembak target ini!");
             }
+
+            if (gorden != null && gordenRope != null)
+            {
+                SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
+                SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
+                if (gordenSr != null & gordenRopeSr != null)
+                {
+                    gordenSr.sortingOrder = 174;
+                    gordenRopeSr.sortingOrder = 175;
+                    gordenSr.color = gordenOriginalColor;
+                    gordenRopeSr.color = gordenRopeOriginalColor;
+                }
+            }
         }
 
         target2Active = false;
         Time.timeScale = 1f;
         ResetElement(null);
 
-        SurvivalTimer survivalTimer = FindObjectOfType<SurvivalTimer>();
+
         if (survivalTimer != null)
         {
             survivalTimer.StopTimer();
         }
-        overlayPanel.SetActive(false);
-        endText.gameObject.SetActive(true);
 
+        overlayPanel.SetActive(false);
+        if (canvasNew != null)
+        {
+            Canvas canvas = canvasNew.GetComponent<Canvas>();
+            if (canvas != null)
+            {
+                canvas.sortingOrder = 204;
+            }
+            else
+            {
+                Debug.LogError("canvasNew tidak punya komponen Canvas!");
+            }
+        }
+
+
+        endText.gameObject.SetActive(true);
+        SpriteRenderer backgroundTargetSr = bacgroundTarget.GetComponent<SpriteRenderer>();
+        if (backgroundTargetSr != null)
+        {
+            backgroundTargetSr.color = new Color(0f, 0f, 0f, 241f / 255f);
+        }
         yield return new WaitForSecondsRealtime(5f);
         SceneManager.LoadScene("MainGame");
     }
@@ -373,6 +555,11 @@ public class TutorialManager : MonoBehaviour
                 element.transform.SetParent(overlayPanel.transform, false);
             }
 
+            if (element == reloadButton.gameObject)
+            {
+                elementRect.pivot = new Vector2(0.64f, 0.5f);
+            }
+
             if (tmp != null)
             {
                 tmp.alignment = TextAlignmentOptions.Center;
@@ -387,6 +574,7 @@ public class TutorialManager : MonoBehaviour
 
                 highlightRect.anchorMin = elementRect.anchorMin;
                 highlightRect.anchorMax = elementRect.anchorMax;
+
                 highlightRect.pivot = elementRect.pivot;
                 highlightRect.anchoredPosition = screenPos;
 
@@ -396,7 +584,7 @@ public class TutorialManager : MonoBehaviour
 
                 handCursor.anchoredPosition = screenPos + new Vector2(textSize.x / 2 + 300f, 0);
 
-                instructionText.rectTransform.pivot = (element == timerText.gameObject) ? new Vector2(0.5f, -0.15f) : (element == scoreText.gameObject) ? new Vector2(-0.430000007f, -1.23000002f) :
+                instructionText.rectTransform.pivot = (element == timerText.gameObject) ? new Vector2(0.5f, -0.15f) : (element == scoreText.gameObject) ? new Vector2(-0.05f, -1.63000002f) :
                  (element == reloadButton.gameObject) ? new Vector2(-3.1500001f, 7.11999989f) :
                  new Vector2(0.5f, 0.5f);
             }
@@ -514,7 +702,7 @@ public class TutorialManager : MonoBehaviour
             instructionText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             instructionText.rectTransform.anchoredPosition = new Vector2(0, 300f);
             instructionText.alignment = TextAlignmentOptions.Center;
-            instructionText.fontSize = 80;
+            instructionText.fontSize = 73.89f;
         }
         instructionText.text = message;
     }
@@ -566,6 +754,7 @@ public class TutorialManager : MonoBehaviour
                 element.transform.SetParent(originalReloadParent, false);
                 elementRect.anchoredPosition = originalReloadPosition;
                 element.transform.SetSiblingIndex(originalReloadSiblingIndex);
+                elementRect.pivot = new Vector2(0.5f, 0.5f);
             }
             highlightBox.SetActive(false);
         }

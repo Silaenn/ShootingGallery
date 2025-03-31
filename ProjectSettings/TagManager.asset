@@ -12,6 +12,7 @@ TagManager:
   - 
   - Water
   - UI
+  - 
   - Target
   - 
   - 
@@ -37,9 +38,8 @@ TagManager:
   - 
   - 
   - 
-  - 
   m_SortingLayers:
-  - name: ScoreText
+  - name: Foreground
     uniqueID: 2773705427
     locked: 0
   - name: Default

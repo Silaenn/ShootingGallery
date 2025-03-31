@@ -69,7 +69,7 @@ public class SurvivalTimer : MonoBehaviour
         panelGameOver.SetActive(false);
     }
 
-    private void Update()
+    void Update()
     {
         if (!isGameOver && isTimerRunning)
         {
@@ -283,5 +283,16 @@ public class SurvivalTimer : MonoBehaviour
     public void StopTimer()
     {
         isTimerRunning = false;
+    }
+
+    public void SetTime(float newTime)
+    {
+        timeLeft = newTime;
+        UpdateUI();
+    }
+
+    public float GetTime()
+    {
+        return timeLeft;
     }
 }
