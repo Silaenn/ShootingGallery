@@ -3730,7 +3730,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 15
+  m_SortingOrder: 220
   m_Sprite: {fileID: 21300000, guid: 38f1e6b2f8f18f54585f1676a4a9094a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -4199,7 +4199,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 16
+  m_SortingOrder: 221
   m_Sprite: {fileID: 21300000, guid: e1a7afa5ed0390f428ec11424c23d72c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -4782,7 +4782,7 @@ MonoBehaviour:
   targetDestroyDelay: 2
   targetLayerMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   scoreTextPrefab: {fileID: 7301387233708759671, guid: ad2f5e808dee10a4ca74566b97f8e727, type: 3}
   textOffsetX: 0.5
   textOffsetY: 0.5
@@ -6923,6 +6923,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlayPanel: {fileID: 1787781746}
+  canvasNew: {fileID: 2032993246}
   timerText: {fileID: 1755903111}
   scoreText: {fileID: 1278128421}
   ammoIconsParent: {fileID: 529431498}
@@ -6942,7 +6943,10 @@ MonoBehaviour:
   bacgroundTarget: {fileID: 942889349}
   targetLayerMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 128
+  gorden: {fileID: 630667845}
+  gordenRope: {fileID: 770090156}
+  survivalTimer: {fileID: 1755903110}
   stepDuration: 4
 --- !u!4 &1334282674
 Transform:
@@ -8126,7 +8130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeLeft: 60
   bonusTime: 50
-  scoreToBonus: 180
+  scoreToBonus: 1000
   timePerDifficultyIncrease: 20
   timerText: {fileID: 1755903111}
   scoreText: {fileID: 1278128421}
@@ -9866,7 +9870,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 210
+  m_SortingOrder: 250
   m_TargetDisplay: 0
 --- !u!224 &2032993250
 RectTransform:
