@@ -1242,7 +1242,7 @@ MonoBehaviour:
   soundShoot: {fileID: 8300000, guid: f021dbee04c996443a17f0bafdd21690, type: 3}
   soundClick: {fileID: 8300000, guid: 3d0a56c5990acea4381f61d250496000, type: 3}
   bgmClip: {fileID: 8300000, guid: 0b8d4950bcb9070468b74f97ad674cbd, type: 3}
-  bgmVolume: 0.644
+  bgmVolume: 0.448
 --- !u!4 &351182638
 Transform:
   m_ObjectHideFlags: 0

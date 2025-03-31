@@ -28,6 +28,10 @@ public class GunShoot : MonoBehaviour
     public RaycastHit2D hit;
 
     public bool HasShot { get; set; } = false;
+    public bool CanShoot { get; set; } = true;
+
+    // Event buat kasih tahu target hancur
+    public event Action<GameObject> OnTargetDestroyed;
 
     void Start()
     {
@@ -43,6 +47,7 @@ public class GunShoot : MonoBehaviour
 
         Cursor.visible = false;
     }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0) && !IsPointerOverUI())
@@ -81,8 +86,7 @@ public class GunShoot : MonoBehaviour
         if (!ammoManager.UseAmmo()) return;
 
         HasShot = true;
-        // AudioManager.Instance.ShootAudio();
-
+        AudioManager.Instance.ShootAudio();
 
         RayCast(out ray, out hit);
         Debug.Log($"Shoot: Hit = {(hit.collider != null ? hit.collider.gameObject.name : "null")}");
@@ -93,6 +97,7 @@ public class GunShoot : MonoBehaviour
         else
         {
             SpawnBulletMark(ray);
+            ResetShoot(); // Reset kalau ga kena target
         }
     }
 
@@ -152,7 +157,15 @@ public class GunShoot : MonoBehaviour
             targetTransform.GetComponent<MovingTarget>().enabled = false;
         }
 
-        Destroy(hit.collider.gameObject, targetDestroyDelay);
+        StartCoroutine(DestroyTargetWithDelay(hit.collider.gameObject));
+    }
+
+    IEnumerator DestroyTargetWithDelay(GameObject target)
+    {
+        yield return new WaitForSeconds(targetDestroyDelay);
+        OnTargetDestroyed?.Invoke(target); // Kasih tahu TutorialManager
+        Destroy(target);
+        ResetShoot(); // Reset setelah hancur
     }
 
     void SpawnBulletMark(Ray ray)
@@ -213,5 +226,4 @@ public class GunShoot : MonoBehaviour
 
         Destroy(textObj);
     }
-
 }
