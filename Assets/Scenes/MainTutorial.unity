@@ -6940,13 +6940,14 @@ MonoBehaviour:
   ammoManager: {fileID: 529431500}
   highlightSprite: {fileID: 21300000, guid: d4fb70d7bdef6ed458c09fde3fcbed60, type: 3}
   handCursorSprite: {fileID: 21300000, guid: 3027a52fa3c795a47b31843c56f535ee, type: 3}
-  bacgroundTarget: {fileID: 942889349}
+  backgroundTarget: {fileID: 942889349}
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 128
   gorden: {fileID: 630667845}
   gordenRope: {fileID: 770090156}
   survivalTimer: {fileID: 1755903110}
+  targetStartTime: 0
   stepDuration: 4
 --- !u!4 &1334282674
 Transform:
@@ -10967,7 +10968,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5486447745002930790, guid: 89c6b49650b8b9141a1a0fe3af080e49, type: 3}
       propertyPath: m_text
-      value: Tutorial Selesai! Ayo Beraksi!
+      value: Tutorial Complete! Let's Get Into Action!
       objectReference: {fileID: 0}
     - target: {fileID: 5486447745002930790, guid: 89c6b49650b8b9141a1a0fe3af080e49, type: 3}
       propertyPath: m_fontSize
