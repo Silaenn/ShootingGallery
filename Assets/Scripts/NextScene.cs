@@ -35,6 +35,7 @@ public class NextScene : MonoBehaviour
             Debug.LogWarning("Child SpriteRenderer tidak ditemukan pada " + gameObject.name);
         }
     }
+
     void OnMouseDown()
     {
         if (AudioManager.Instance != null)
@@ -101,4 +102,9 @@ public class NextScene : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
+    public void ResetTutorial()
+    {
+        PlayerPrefs.DeleteKey("HasCompletedTutorial");
+        Debug.Log("Tutorial status direset!");
+    }
 }

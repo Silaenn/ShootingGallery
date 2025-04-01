@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using System.Collections.Generic;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] AmmoManager ammoManager;
     [SerializeField] Sprite highlightSprite;
     [SerializeField] Sprite handCursorSprite;
-    [SerializeField] GameObject bacgroundTarget;
+    [SerializeField] GameObject backgroundTarget;
     [SerializeField] LayerMask targetLayerMask;
     [SerializeField] GameObject gorden;
     [SerializeField] GameObject gordenRope;
@@ -59,6 +60,10 @@ public class TutorialManager : MonoBehaviour
     Color gordenRopeOriginalColor;
     int targetsShotCount = 0;
 
+    // Object Pooling
+    private List<GameObject> targetPool = new List<GameObject>();
+    private const int POOL_SIZE = 5; // 4 targets + 1 target2
+
     void Start()
     {
         highlightRect = highlightBox.GetComponent<RectTransform>();
@@ -76,9 +81,9 @@ public class TutorialManager : MonoBehaviour
         originalInstructionParent = instructionText.transform.parent;
         mainCanvas = overlayPanel.GetComponentInParent<Canvas>();
 
-        SpriteRenderer bgSr = bacgroundTarget.GetComponent<SpriteRenderer>();
+        SpriteRenderer bgSr = backgroundTarget.GetComponent<SpriteRenderer>();
         if (bgSr != null) bgSr.sortingOrder = 210;
-        bacgroundTarget.SetActive(false);
+        backgroundTarget.SetActive(false);
 
         worldHighlights = new GameObject[4];
         worldHandCursor = new GameObject[4];
@@ -91,28 +96,16 @@ public class TutorialManager : MonoBehaviour
         {
             gunShoot.enabled = false;
             gunShoot.OnTargetDestroyed += OnTargetDestroyed;
-        }
-        if (gunMovement != null) gunMovement.enabled = false;
-        if (gunShoot != null)
-        {
             gunShoot.targetLayerMask = targetLayerMask;
         }
-        if (gorden != null)
-        {
-            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
-            if (gordenSr != null)
-            {
-                gordenOriginalColor = gordenSr.color;
-            }
-        }
-        if (gordenRope != null)
-        {
-            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenRopeSr != null)
-            {
-                gordenRopeOriginalColor = gordenRopeSr.color;
-            }
-        }
+        if (gunMovement != null) gunMovement.enabled = false;
+
+        SpriteRenderer gordenSr = gorden?.GetComponent<SpriteRenderer>();
+        if (gordenSr != null) gordenOriginalColor = gordenSr.color;
+
+        SpriteRenderer gordenRopeSr = gordenRope?.GetComponent<SpriteRenderer>();
+        if (gordenRopeSr != null) gordenRopeOriginalColor = gordenRopeSr.color;
+
         crossHair.GetComponent<CrosshairController>().enabled = false;
 
         if (timerText != null)
@@ -142,11 +135,37 @@ public class TutorialManager : MonoBehaviour
             if (survivalTimer == null) Debug.LogWarning("SurvivalTimer tidak ditemukan!");
         }
 
+        InitializeTargetPool();
         StartCoroutine(RunTutorial());
+    }
+
+    // Inisialisasi object pool
+    private void InitializeTargetPool()
+    {
+        for (int i = 0; i < POOL_SIZE; i++)
+        {
+            GameObject pooledTarget = Instantiate(target1, Vector3.zero, Quaternion.identity);
+            pooledTarget.SetActive(false);
+            targetPool.Add(pooledTarget);
+        }
+    }
+
+    private GameObject GetPooledTarget()
+    {
+        foreach (var target in targetPool)
+        {
+            if (target != null && !target.activeInHierarchy) return target;
+        }
+        GameObject newTarget = Instantiate(target1, Vector3.zero, Quaternion.identity);
+        newTarget.SetActive(false);
+        targetPool.Add(newTarget);
+        return newTarget;
     }
 
     void Update()
     {
+        if (!targetsActive && !target2Active) return; // Optimasi: skip jika tidak aktif
+
         for (int i = 0; i < targets.Length; i++)
         {
             if (targets[i] != null && worldHighlights[i] != null && worldHighlights[i].activeInHierarchy)
@@ -238,6 +257,7 @@ public class TutorialManager : MonoBehaviour
                     {
                         target2Shot = true;
                         gunShoot.enabled = false;
+                        gunMovement.enabled = false;
                         if (crossHair != null) crossHair.GetComponent<CrosshairController>().enabled = false;
 
                         SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
@@ -277,22 +297,24 @@ public class TutorialManager : MonoBehaviour
             }
             if (targets[i] != null)
             {
-                Destroy(targets[i]);
+                targets[i].SetActive(false); // Nonaktifkan daripada Destroy
             }
-            targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
+            targets[i] = GetPooledTarget();
+            targets[i].transform.position = new Vector3(i * 2f, 0f, 0f);
             targets[i].SetActive(true);
             targets[i].layer = LayerMask.NameToLayer("Target");
         }
-        HighlightElement(targets[0], "Tembak target");
+        HighlightElement(targets[0], "Shoot Targets");
     }
 
     void ResetTarget2()
     {
         if (target2Instance != null)
         {
-            Destroy(target2Instance);
+            target2Instance.SetActive(false); // Nonaktifkan daripada Destroy
         }
-        target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+        target2Instance = GetPooledTarget();
+        target2Instance.transform.position = new Vector3(0f, 0f, 0f);
         target2Instance.SetActive(true);
         SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
         if (target2Sr != null)
@@ -301,16 +323,16 @@ public class TutorialManager : MonoBehaviour
         }
         target2Shot = false;
         if (gunShoot != null) gunShoot.enabled = true;
-        HighlightElement(target2Instance, "Tembak target ini!");
+        HighlightElement(target2Instance, "Shoot this target!");
     }
 
     System.Collections.IEnumerator RunTutorial()
     {
-        HighlightElement(timerText.gameObject, "Ini waktu permainan!", true);
+        HighlightElement(timerText.gameObject, "It's game time", true);
         yield return new WaitForSecondsRealtime(stepDuration);
         ResetElement(timerText.gameObject);
 
-        HighlightElement(scoreText.gameObject, "Ini skor kamu!", true);
+        HighlightElement(scoreText.gameObject, "This is your score!", true);
         yield return new WaitForSecondsRealtime(stepDuration);
         ResetElement(scoreText.gameObject);
 
@@ -323,14 +345,15 @@ public class TutorialManager : MonoBehaviour
         if (crossHair != null) crossHair.SetActive(true);
         crossHair.GetComponent<CrosshairController>().enabled = true;
 
-        bacgroundTarget.SetActive(true);
+        backgroundTarget.SetActive(true);
         targetsActive = true;
         targetStartTime = survivalTimer.GetTime();
         for (int i = 0; i < 4; i++)
         {
-            if (target1 != null && (targets[i] == null || !targets[i]))
+            if (target1 != null && (targets[i] == null || !targets[i].activeInHierarchy))
             {
-                targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
+                targets[i] = GetPooledTarget();
+                targets[i].transform.position = new Vector3(i * 2f, 0f, 0f);
                 targets[i].SetActive(true);
                 targets[i].layer = LayerMask.NameToLayer("Target");
                 SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
@@ -350,7 +373,7 @@ public class TutorialManager : MonoBehaviour
             }
         }
         Time.timeScale = 0.5f;
-        HighlightElement(targets[0], "Tembak target");
+        HighlightElement(targets[0], "Shoot Targets");
 
         while (!tutorialStepCompleted)
         {
@@ -394,7 +417,8 @@ public class TutorialManager : MonoBehaviour
 
                         if (targets[i] == null)
                         {
-                            targets[i] = Instantiate(target1, new Vector3(i * 2f, 0f, 0f), Quaternion.identity);
+                            targets[i] = GetPooledTarget();
+                            targets[i].transform.position = new Vector3(i * 2f, 0f, 0f);
                             targets[i].SetActive(true);
                             targets[i].layer = LayerMask.NameToLayer("Target");
                             SpriteRenderer targetSr = targets[i].GetComponent<SpriteRenderer>();
@@ -426,7 +450,7 @@ public class TutorialManager : MonoBehaviour
                     }
 
                     targetsShotCount = 0;
-                    HighlightElement(targets[0], "Tembak target");
+                    HighlightElement(targets[0], "Shoot Targets");
                 }
                 else if (ammoManager.GetRemainingAmmo() <= 0 && targetsShotCount >= 4)
                 {
@@ -453,8 +477,8 @@ public class TutorialManager : MonoBehaviour
         instructionText.transform.SetParent(originalInstructionParent, false);
 
         overlayPanel.SetActive(true);
-        bacgroundTarget.SetActive(false);
-        HighlightElement(reloadButton.gameObject, "Ammo berkurang? Klik Reload!", true);
+        backgroundTarget.SetActive(false);
+        HighlightElement(reloadButton.gameObject, "Low ammo? Click Reload!", true);
         yield return new WaitUntil(() => ammoManager.GetRemainingAmmo() == 4);
         ResetElement(reloadButton.gameObject);
 
@@ -470,16 +494,17 @@ public class TutorialManager : MonoBehaviour
         }
 
         overlayPanel.SetActive(false);
-        bacgroundTarget.SetActive(true);
+        backgroundTarget.SetActive(true);
 
         if (target2Instance == null)
         {
-            target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+            target2Instance = GetPooledTarget();
+            target2Instance.transform.position = new Vector3(0f, 0f, 0f);
             target2Instance.layer = LayerMask.NameToLayer("Target");
             target2Instance.SetActive(true);
         }
 
-        HighlightElement(target2Instance, "Tembak target ini!");
+        HighlightElement(target2Instance, "Shoot this target!");
         if (gorden != null && gordenRope != null)
         {
             SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
@@ -504,15 +529,15 @@ public class TutorialManager : MonoBehaviour
                 ammoManager.ReloadAmmo();
                 if (target2Instance == null || !target2Instance.activeInHierarchy)
                 {
-                    target2Instance = Instantiate(target2, new Vector3(0f, 0f, 0f), Quaternion.identity);
+                    target2Instance = GetPooledTarget();
                 }
-                target2Instance.SetActive(true);
                 target2Instance.transform.position = new Vector3(0f, 0f, 0f);
+                target2Instance.SetActive(true);
                 SpriteRenderer target2Sr = target2Instance.GetComponent<SpriteRenderer>();
                 target2Sr.sortingOrder = 212;
                 target2Shot = false;
                 if (gunShoot != null) gunShoot.enabled = true;
-                HighlightElement(target2Instance, "Tembak target ini!");
+                HighlightElement(target2Instance, "Shoot this target!");
             }
 
             if (gorden != null && gordenRope != null)
@@ -551,7 +576,7 @@ public class TutorialManager : MonoBehaviour
         }
 
         endText.gameObject.SetActive(true);
-        SpriteRenderer backgroundTargetSr = bacgroundTarget.GetComponent<SpriteRenderer>();
+        SpriteRenderer backgroundTargetSr = backgroundTarget.GetComponent<SpriteRenderer>();
         if (backgroundTargetSr != null)
         {
             backgroundTargetSr.color = new Color(0f, 0f, 0f, 241f / 255f);
@@ -815,12 +840,14 @@ public class TutorialManager : MonoBehaviour
         {
             if (targets[i] == destroyedTarget)
             {
+                targets[i].SetActive(false);
                 targets[i] = null;
                 Debug.Log($"Target[{i}] dihancurkan oleh GunShoot");
             }
         }
         if (destroyedTarget == target2Instance)
         {
+            target2Instance.SetActive(false);
             target2Instance = null;
             target2Shot = false;
             Debug.Log("Target2 dihancurkan oleh GunShoot");
