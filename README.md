@@ -40,3 +40,5 @@ Additional sound effects from Unity Asset Store’s Puzzle Game Engine.
 Custom “Ready, Go!” voiceover created using TopMediaAI.
 ## 🚀 Ready to Play?
 Download Shooting Gallery now and step into the carnival spotlight! Can you hit all the targets and claim the top score? There’s only one way to find out—grab your virtual gun and start shooting! 🎉
+
+Download Now : https://silaenn.itch.io/shooting-gallery
