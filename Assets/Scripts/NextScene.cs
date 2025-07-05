@@ -1,4 +1,5 @@
 using System.Collections;
+using CrazyGames;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -83,8 +84,10 @@ public class NextScene : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        if (PlayerPrefs.GetInt("HasCompletedTutorial", 0) == 0)
+        if (!GameManager.HasCompletedTutorial)
         {
+            GameManager.HasCompletedTutorial = true;
+            CrazySDK.Game.GameplayStop();
             SceneManager.LoadScene(tutorialSceneName);
         }
         else
@@ -104,7 +107,6 @@ public class NextScene : MonoBehaviour
 
     public void ResetTutorial()
     {
-        PlayerPrefs.DeleteKey("HasCompletedTutorial");
-        Debug.Log("Tutorial status direset!");
+        GameManager.Instance.ResetTutorial();
     }
 }

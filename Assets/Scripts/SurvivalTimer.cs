@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using CrazyGames;
 
 public class SurvivalTimer : MonoBehaviour
 {
@@ -67,6 +68,7 @@ public class SurvivalTimer : MonoBehaviour
 
         UpdateUI();
         panelGameOver.SetActive(false);
+        CrazySDK.Game.GameplayStart();
     }
 
     void Update()
@@ -207,6 +209,26 @@ public class SurvivalTimer : MonoBehaviour
         if (isGameOver) return;
 
         isGameOver = true;
+        CrazySDK.Game.GameplayStop();
+        CrazySDK.Ad.RequestAd(CrazyAdType.Midgame, () => // or CrazyAdType.Rewarded
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
+            }
+        }, (error) =>
+        {
+             if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayBGM();
+            }
+        }, () =>
+        {
+             if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayBGM();
+            }
+        });
 
         if (audioSource != null && soundGameOver != null)
         {
@@ -245,13 +267,12 @@ public class SurvivalTimer : MonoBehaviour
 
     void UpdateGameOverUI()
     {
-        int highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
+        int highScore = GameManager.HighScore;
 
         if (score > highScore)
         {
             highScore = score;
-            PlayerPrefs.SetInt(HIGH_SCORE_KEY, highScore);
-            PlayerPrefs.Save();
+            GameManager.HighScore = highScore;
         }
 
         if (gameOverScoreText != null)
