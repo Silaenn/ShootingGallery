@@ -7,8 +7,8 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance;
 
     [Header("Audio Sources")]
-    AudioSource audioSource;
-    AudioSource bgmSource;
+    public AudioSource audioSource;
+    public AudioSource bgmSource;
 
     [Header("Audio Clips")]
     public AudioClip soundReload;

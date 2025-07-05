@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 using System.Collections.Generic;
+using CrazyGames;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -137,6 +138,7 @@ public class TutorialManager : MonoBehaviour
 
         InitializeTargetPool();
         StartCoroutine(RunTutorial());
+        CrazySDK.Game.GameplayStart();
     }
 
     // Inisialisasi object pool
