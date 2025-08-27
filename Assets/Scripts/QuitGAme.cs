@@ -1,15 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class QuitGAme : MonoBehaviour
+public class QuitGame : MonoBehaviour
 {
     void OnMouseDown()
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit(); 
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetTutorial();
+        }
 #endif
     }
 }
