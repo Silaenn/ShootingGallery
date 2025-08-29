@@ -1,5 +1,4 @@
 using System.Collections;
-using CrazyGames;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -87,7 +86,6 @@ public class NextScene : MonoBehaviour
         if (!GameManager.HasCompletedTutorial)
         {
             GameManager.HasCompletedTutorial = true;
-            CrazySDK.Game.GameplayStop();
             SceneManager.LoadScene(tutorialSceneName);
         }
         else

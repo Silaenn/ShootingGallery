@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using CrazyGames;
 
 public class SurvivalTimer : MonoBehaviour
 {
@@ -20,7 +19,6 @@ public class SurvivalTimer : MonoBehaviour
     [SerializeField] TextMeshProUGUI gameOverHighScoreText;
 
     [Header("References")]
-
     [SerializeField] TargetSpawner targetSpawner;
     [SerializeField] GunShoot gunShoot;
     [SerializeField] GunMovement gunMovement;
@@ -42,7 +40,7 @@ public class SurvivalTimer : MonoBehaviour
     float difficultyTimer;
     int difficultyLevel = 1;
     bool isGameOver = false;
-    float lastTimeDIsplayed = -1f;
+    float lastTimeDisplayed = -1f;
     const string HIGH_SCORE_KEY = "HighScore";
     AudioSource audioSource;
     bool hasPlayedTimeOutSound = false;
@@ -68,7 +66,6 @@ public class SurvivalTimer : MonoBehaviour
 
         UpdateUI();
         panelGameOver.SetActive(false);
-        CrazySDK.Game.GameplayStart();
     }
 
     void Update()
@@ -95,14 +92,14 @@ public class SurvivalTimer : MonoBehaviour
 
     void UpdateUI()
     {
-        if (timerText != null && Mathf.Abs(timeLeft - lastTimeDIsplayed) > 0.1f)
+        if (timerText != null && Mathf.Abs(timeLeft - lastTimeDisplayed) > 0.1f)
         {
             timerText.text = Mathf.Max(0, timeLeft).ToString("F0");
             if (timeLeft < 5f)
             {
                 timerText.color = Color.red;
 
-                if (!hasPlayedTimeOutSound && audioSource != null && audioSource != null)
+                if (!hasPlayedTimeOutSound && audioSource != null && soundTimeOut != null)
                 {
                     audioSource.PlayOneShot(soundTimeOut);
                     hasPlayedTimeOutSound = true;
@@ -113,13 +110,14 @@ public class SurvivalTimer : MonoBehaviour
                 timerText.color = Color.white;
                 hasPlayedTimeOutSound = false;
             }
-            lastTimeDIsplayed = timeLeft;
+            lastTimeDisplayed = timeLeft;
         }
         if (scoreText != null)
         {
             scoreText.text = "Score: " + score;
         }
     }
+
     public void AddScore(int points)
     {
         if (!isGameOver)
@@ -161,7 +159,6 @@ public class SurvivalTimer : MonoBehaviour
             if (bonusText != null)
             {
                 bonusText.text = "+" + bonusTime.ToString("F0");
-                Debug.Log($"Bonus time text spawned at {bonusRect.anchoredPosition} with value: +{bonusTime}");
             }
             else
             {
@@ -172,7 +169,7 @@ public class SurvivalTimer : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("bonusTimeText Prefab atau timerText tidak diatur di Inspector");
+            Debug.LogWarning("bonusTimeTextPrefab atau timerText tidak diatur di Inspector");
         }
     }
 
@@ -194,6 +191,7 @@ public class SurvivalTimer : MonoBehaviour
 
         Destroy(textObj);
     }
+
     void IncreaseDifficulty()
     {
         difficultyLevel++;
@@ -209,26 +207,6 @@ public class SurvivalTimer : MonoBehaviour
         if (isGameOver) return;
 
         isGameOver = true;
-        CrazySDK.Game.GameplayStop();
-        CrazySDK.Ad.RequestAd(CrazyAdType.Midgame, () => // or CrazyAdType.Rewarded
-        {
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.StopBGM();
-            }
-        }, (error) =>
-        {
-             if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayBGM();
-            }
-        }, () =>
-        {
-             if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayBGM();
-            }
-        });
 
         if (audioSource != null && soundGameOver != null)
         {
@@ -262,7 +240,6 @@ public class SurvivalTimer : MonoBehaviour
 
         UpdateGameOverUI();
 
-        Debug.Log("Game Over! Final Score: " + score);
     }
 
     void UpdateGameOverUI()
@@ -277,12 +254,12 @@ public class SurvivalTimer : MonoBehaviour
 
         if (gameOverScoreText != null)
         {
-            gameOverScoreText.text = "Score : " + score;
+            gameOverScoreText.text = "Score: " + score;
         }
 
         if (gameOverHighScoreText != null)
         {
-            gameOverHighScoreText.text = "HighScore : " + highScore;
+            gameOverHighScoreText.text = "HighScore: " + highScore;
         }
 
         if (score == highScore)

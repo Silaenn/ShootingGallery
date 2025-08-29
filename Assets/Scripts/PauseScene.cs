@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class PauseScene : MonoBehaviour
@@ -6,27 +7,39 @@ public class PauseScene : MonoBehaviour
     [SerializeField] GameObject panelPause;
     [SerializeField] Sprite spritePause;
     [SerializeField] Sprite spritePlay;
+    [SerializeField] Button pauseButton; // Tombol UI untuk pause
 
-    SpriteRenderer spriteRenderer;
+    Image buttonImage; // Komponen Image pada tombol
     bool isPaused = false;
     CrosshairController crosshairController;
 
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        // Ambil komponen Image dari tombol
+        buttonImage = pauseButton.GetComponent<Image>();
         crosshairController = FindObjectOfType<CrosshairController>();
         panelPause.SetActive(false);
+
+        // Tambahkan listener ke tombol untuk memanggil TogglePause
+        pauseButton.onClick.AddListener(TogglePause);
     }
 
-    void OnMouseDown()
+    void TogglePause()
     {
         if (!isPaused)
         {
             AudioManager.Instance.ClickAudio();
             Time.timeScale = 0;
             panelPause.SetActive(true);
-            spriteRenderer.sprite = spritePause;
+            if (buttonImage != null && spritePause != null)
+            {
+                buttonImage.sprite = spritePause;
+            }
             isPaused = true;
+        }
+        else
+        {
+            ResumeGame();
         }
     }
 
@@ -38,10 +51,11 @@ public class PauseScene : MonoBehaviour
         {
             crosshairController.OnResume();
         }
-        if (spriteRenderer != null && spritePlay != null)
+        if (buttonImage != null && spritePlay != null)
         {
-            spriteRenderer.sprite = spritePlay;
+            buttonImage.sprite = spritePlay;
         }
+        panelPause.SetActive(false);
         isPaused = false;
     }
 

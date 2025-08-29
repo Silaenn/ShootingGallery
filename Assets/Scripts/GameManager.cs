@@ -1,4 +1,3 @@
-using CrazyGames;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -10,23 +9,23 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        ResetTutorial();
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            CrazySDK.Init(() =>
+
+            // Inisialisasi PlayerPrefs untuk tutorial dan high score
+            if (!PlayerPrefs.HasKey(TUTORIAL_KEY))
             {
-                Debug.Log("CrazyGames SDK Initialized");
-                
-                if (!CrazySDK.Data.HasKey(TUTORIAL_KEY))
-                {
-                    CrazySDK.Data.SetInt(TUTORIAL_KEY, 0);
-                }
-                if (!CrazySDK.Data.HasKey(HIGH_SCORE_KEY))
-                {
-                    CrazySDK.Data.SetInt(HIGH_SCORE_KEY, 0);
-                }
-            });
+                PlayerPrefs.SetInt(TUTORIAL_KEY, 0);
+                PlayerPrefs.Save();
+            }
+            if (!PlayerPrefs.HasKey(HIGH_SCORE_KEY))
+            {
+                PlayerPrefs.SetInt(HIGH_SCORE_KEY, 0);
+                PlayerPrefs.Save();
+            }
         }
         else
         {
@@ -36,20 +35,28 @@ public class GameManager : MonoBehaviour
 
     public static bool HasCompletedTutorial
     {
-        get { return CrazySDK.Data.GetInt(TUTORIAL_KEY, 0) == 1; }
-        set { CrazySDK.Data.SetInt(TUTORIAL_KEY, value ? 1 : 0); }
+        get { return PlayerPrefs.GetInt(TUTORIAL_KEY, 0) == 1; }
+        set 
+        { 
+            PlayerPrefs.SetInt(TUTORIAL_KEY, value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
     }
 
     public static int HighScore
     {
-          get { return CrazySDK.Data.GetInt(HIGH_SCORE_KEY, 0); }
-        set { CrazySDK.Data.SetInt(HIGH_SCORE_KEY, value); }
+        get { return PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0); }
+        set 
+        { 
+            PlayerPrefs.SetInt(HIGH_SCORE_KEY, value);
+            PlayerPrefs.Save();
+        }
     }
 
     public void ResetTutorial()
     {
-        CrazySDK.Data.DeleteKey(TUTORIAL_KEY);
-        CrazySDK.Data.SetInt(TUTORIAL_KEY, 0);
-        Debug.Log("Tutorial status direset!");
+        PlayerPrefs.DeleteKey(TUTORIAL_KEY);
+        PlayerPrefs.SetInt(TUTORIAL_KEY, 0);
+        PlayerPrefs.Save();
     }
 }
