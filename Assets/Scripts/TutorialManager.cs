@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 using System.Collections.Generic;
-using CrazyGames;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -28,8 +27,6 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] Sprite handCursorSprite;
     [SerializeField] GameObject backgroundTarget;
     [SerializeField] LayerMask targetLayerMask;
-    [SerializeField] GameObject gorden;
-    [SerializeField] GameObject gordenRope;
     [SerializeField] SurvivalTimer survivalTimer;
     [SerializeField] float targetStartTime;
 
@@ -101,12 +98,6 @@ public class TutorialManager : MonoBehaviour
         }
         if (gunMovement != null) gunMovement.enabled = false;
 
-        SpriteRenderer gordenSr = gorden?.GetComponent<SpriteRenderer>();
-        if (gordenSr != null) gordenOriginalColor = gordenSr.color;
-
-        SpriteRenderer gordenRopeSr = gordenRope?.GetComponent<SpriteRenderer>();
-        if (gordenRopeSr != null) gordenRopeOriginalColor = gordenRopeSr.color;
-
         crossHair.GetComponent<CrosshairController>().enabled = false;
 
         if (timerText != null)
@@ -138,7 +129,6 @@ public class TutorialManager : MonoBehaviour
 
         InitializeTargetPool();
         StartCoroutine(RunTutorial());
-        CrazySDK.Game.GameplayStart();
     }
 
     // Inisialisasi object pool
@@ -205,7 +195,6 @@ public class TutorialManager : MonoBehaviour
             {
                 if (targets[i] != null && targets[i].activeInHierarchy && Mathf.Abs(targets[i].transform.position.x - -9.584623f) < 0.01f)
                 {
-                    Debug.Log($"Target[{i}] mencapai X = -9.584623, akan reset semua target");
                     shouldResetAll = true;
                     break;
                 }
@@ -219,10 +208,8 @@ public class TutorialManager : MonoBehaviour
 
         if (gunShoot != null && gunShoot.HasShot)
         {
-            Debug.Log("Memulai raycast...");
             try
             {
-                Debug.Log($"Raycast selesai. Hit: {(gunShoot.hit.collider != null ? gunShoot.hit.collider.gameObject.name : "null")}");
                 if (gunShoot.hit.collider != null && gunShoot.hit.collider.CompareTag("Target"))
                 {
                     GameObject hitTarget = gunShoot.hit.collider.gameObject;
@@ -234,7 +221,6 @@ public class TutorialManager : MonoBehaviour
                             if (targets[i] == hitTarget)
                             {
                                 targetsShotCount++;
-                                Debug.Log($"Target[{i}] ditembak, total ditembak: {targetsShotCount}");
                                 SpriteRenderer targetsSr = targets[i].GetComponent<SpriteRenderer>();
                                 if (targetsSr != null)
                                 {
@@ -243,12 +229,10 @@ public class TutorialManager : MonoBehaviour
                                 if (worldHighlights[i] != null)
                                 {
                                     worldHighlights[i].SetActive(false);
-                                    Debug.Log($"WorldHighlight[{i}] dimatikan saat target kena tembak");
                                 }
                                 if (worldHandCursor[i] != null)
                                 {
                                     worldHandCursor[i].SetActive(false);
-                                    Debug.Log($"WorldHandCursor[{i}] dimatikan saat target kena tembak");
                                 }
                                 break;
                             }
@@ -270,12 +254,10 @@ public class TutorialManager : MonoBehaviour
                         if (worldHighlights[0] != null)
                         {
                             worldHighlights[0].SetActive(false);
-                            Debug.Log("WorldHighlight[0] dimatikan saat target2 kena tembak");
                         }
                         if (worldHandCursor[0] != null)
                         {
                             worldHandCursor[0].SetActive(false);
-                            Debug.Log("WorldHandCursor[0] dimatikan saat target2 kena tembak");
                         }
                     }
                 }
@@ -364,16 +346,6 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
-        if (gorden != null && gordenRope != null)
-        {
-            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
-            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null && gordenRopeSr != null)
-            {
-                gordenSr.color = new Color(105f / 255f, 104f / 255f, 104f / 255f, 1f);
-                gordenRopeSr.color = new Color(101f / 255f, 100f / 255f, 100f / 255f, 1f);
-            }
-        }
         Time.timeScale = 0.5f;
         HighlightElement(targets[0], "Shoot Targets");
 
@@ -400,13 +372,11 @@ public class TutorialManager : MonoBehaviour
                         if (worldHighlights[i] != null) worldHighlights[i].SetActive(false);
                         if (worldHandCursor[i] != null) worldHandCursor[i].SetActive(false);
                     }
-                    Debug.Log("Semua target hancur, keluar loop, semua highlight dimatikan");
                     return true;
                 }
 
                 if (ammoManager.GetRemainingAmmo() <= 0 && targetsShotCount < 4)
                 {
-                    Debug.Log("Ammo habis, reset target karena ada yang belum ditembak");
                     ammoManager.ReloadAmmo();
 
                     bool targetsStillExist = false;
@@ -448,7 +418,6 @@ public class TutorialManager : MonoBehaviour
                     if (survivalTimer != null && targetsStillExist)
                     {
                         survivalTimer.SetTime(targetStartTime);
-                        Debug.Log($"Waktu direset ke {targetStartTime} karena masih ada target belum ditembak. TimeLeft: {survivalTimer.GetTime()}");
                     }
 
                     targetsShotCount = 0;
@@ -463,17 +432,6 @@ public class TutorialManager : MonoBehaviour
             });
         }
 
-        if (gorden != null && gordenRope != null)
-        {
-            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
-            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null && gordenRopeSr != null)
-            {
-                gordenSr.color = gordenOriginalColor;
-                gordenRopeSr.color = gordenRopeOriginalColor;
-            }
-        }
-
         targetsActive = false;
         Time.timeScale = 1f;
         instructionText.transform.SetParent(originalInstructionParent, false);
@@ -483,17 +441,6 @@ public class TutorialManager : MonoBehaviour
         HighlightElement(reloadButton.gameObject, "Low ammo? Click Reload!", true);
         yield return new WaitUntil(() => ammoManager.GetRemainingAmmo() == 4);
         ResetElement(reloadButton.gameObject);
-
-        if (gorden != null && gordenRope != null)
-        {
-            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
-            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null && gordenRopeSr != null)
-            {
-                gordenSr.color = new Color(255f, 255f, 255f, 255f);
-                gordenRopeSr.color = new Color(255f, 255f, 255f, 255f);
-            }
-        }
 
         overlayPanel.SetActive(false);
         backgroundTarget.SetActive(true);
@@ -507,16 +454,6 @@ public class TutorialManager : MonoBehaviour
         }
 
         HighlightElement(target2Instance, "Shoot this target!");
-        if (gorden != null && gordenRope != null)
-        {
-            SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
-            SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-            if (gordenSr != null && gordenRopeSr != null)
-            {
-                gordenSr.color = new Color(105f / 255f, 104f / 255f, 104f / 255f, 1f);
-                gordenRopeSr.color = new Color(101f / 255f, 100f / 255f, 100f / 255f, 1f);
-            }
-        }
         SpriteRenderer target2SR = target2Instance.GetComponent<SpriteRenderer>();
         target2SR.sortingOrder = 212;
         Time.timeScale = 0.5f;
@@ -540,19 +477,6 @@ public class TutorialManager : MonoBehaviour
                 target2Shot = false;
                 if (gunShoot != null) gunShoot.enabled = true;
                 HighlightElement(target2Instance, "Shoot this target!");
-            }
-
-            if (gorden != null && gordenRope != null)
-            {
-                SpriteRenderer gordenSr = gorden.GetComponent<SpriteRenderer>();
-                SpriteRenderer gordenRopeSr = gordenRope.GetComponent<SpriteRenderer>();
-                if (gordenSr != null && gordenRopeSr != null)
-                {
-                    gordenSr.sortingOrder = 174;
-                    gordenRopeSr.sortingOrder = 175;
-                    gordenSr.color = gordenOriginalColor;
-                    gordenRopeSr.color = gordenRopeOriginalColor;
-                }
             }
 
             Cursor.visible = false;
@@ -607,7 +531,7 @@ public class TutorialManager : MonoBehaviour
 
             if (element == reloadButton.gameObject)
             {
-                elementRect.pivot = new Vector2(0.64f, 0.5f);
+                elementRect.pivot = new Vector2(0.50f, 0.5f);
             }
 
             if (tmp != null)
@@ -666,7 +590,6 @@ public class TutorialManager : MonoBehaviour
             if (cursorAnimator != null)
             {
                 cursorAnimator.Play("HandCursor", -1, 0f);
-                Debug.Log($"Animasi cursor diputar untuk {element.name}");
             }
             else
             {

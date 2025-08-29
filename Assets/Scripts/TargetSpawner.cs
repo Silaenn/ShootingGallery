@@ -114,7 +114,6 @@ public class TargetSpawner : MonoBehaviour
 
         currentSpawnInterval = Mathf.Max(minSpawnInterval, currentSpawnInterval - difficultyIncreaseRate);
 
-        Debug.Log($"Kesulitan ditingkatkan: Batch={currentBatchSize}, Interval={currentSpawnInterval}");
     }
 
     public void ResetSpawner()

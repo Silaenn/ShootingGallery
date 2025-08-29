@@ -97,7 +97,6 @@ public class GunShoot : MonoBehaviour
         AudioManager.Instance.ShootAudio();
 
         RayCast(out ray, out hit);
-        Debug.Log($"Shoot: Hit = {(hit.collider != null ? hit.collider.gameObject.name : "null")}");
         if (hit.collider != null && hit.collider.CompareTag("Target"))
         {
             HandleTargetHit(hit);
@@ -147,7 +146,6 @@ public class GunShoot : MonoBehaviour
         Rigidbody2D targetRb = hit.collider.GetComponent<Rigidbody2D>();
         if (targetRb == null)
         {
-            Debug.LogError("Target " + hit.collider.gameObject.name + " tidak punya Rigidbody2D!");
             return;
         }
 
