@@ -21,10 +21,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] GameObject crossHair;
     [SerializeField] TextMeshProUGUI endText;
     [SerializeField] GunShoot gunShoot;
-    [SerializeField] GunMovement gunMovement;
+    [SerializeField] UIGunMovement gunMovement;
     [SerializeField] AmmoManager ammoManager;
-    [SerializeField] Sprite highlightSprite;
-    [SerializeField] Sprite handCursorSprite;
     [SerializeField] GameObject backgroundTarget;
     [SerializeField] LayerMask targetLayerMask;
     [SerializeField] SurvivalTimer survivalTimer;
@@ -329,7 +327,7 @@ public class TutorialManager : MonoBehaviour
         if (crossHair != null) crossHair.SetActive(true);
         crossHair.GetComponent<CrosshairController>().enabled = true;
 
-        backgroundTarget.SetActive(true);
+        backgroundTarget.SetActive(false);
         targetsActive = true;
         targetStartTime = survivalTimer.GetTime();
         for (int i = 0; i < 4; i++)
@@ -443,7 +441,7 @@ public class TutorialManager : MonoBehaviour
         ResetElement(reloadButton.gameObject);
 
         overlayPanel.SetActive(false);
-        backgroundTarget.SetActive(true);
+        // backgroundTarget.SetActive(true);
 
         if (target2Instance == null)
         {
@@ -611,7 +609,6 @@ public class TutorialManager : MonoBehaviour
                         {
                             worldHighlights[i] = new GameObject("WorldHighlight_" + i);
                             SpriteRenderer sr = worldHighlights[i].AddComponent<SpriteRenderer>();
-                            sr.sprite = highlightSprite;
                             sr.sortingLayerName = "Default";
                             sr.sortingOrder = 211;
                             worldHighlights[i].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
@@ -623,7 +620,6 @@ public class TutorialManager : MonoBehaviour
                         {
                             worldHandCursor[i] = new GameObject("WorldHandCursor_" + i);
                             SpriteRenderer sr = worldHandCursor[i].AddComponent<SpriteRenderer>();
-                            sr.sprite = handCursorSprite;
                             sr.sortingLayerName = "Default";
                             sr.sortingOrder = 213;
                             worldHandCursor[i].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
@@ -646,7 +642,6 @@ public class TutorialManager : MonoBehaviour
                     {
                         worldHighlights[0] = new GameObject("WorldHighlight_0");
                         SpriteRenderer sr = worldHighlights[0].AddComponent<SpriteRenderer>();
-                        sr.sprite = highlightSprite;
                         sr.sortingLayerName = "Default";
                         sr.sortingOrder = 211;
                         worldHighlights[0].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
@@ -658,7 +653,6 @@ public class TutorialManager : MonoBehaviour
                     {
                         worldHandCursor[0] = new GameObject("WorldHandCursor_0");
                         SpriteRenderer sr = worldHandCursor[0].AddComponent<SpriteRenderer>();
-                        sr.sprite = handCursorSprite;
                         sr.sortingLayerName = "Default";
                         sr.sortingOrder = 213;
                         worldHandCursor[0].transform.localScale = new Vector3(0.219999999f, 0.219999999f, 0.219999999f);
