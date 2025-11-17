@@ -1,4 +1,4 @@
-# Shooting Gallery
+# Shooting Galleryy
 
 ![Screenshot 2025-03-24 142133](https://github.com/user-attachments/assets/4e83a67f-bc24-4644-9616-adcadd773580)
 
